@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pythonNode.iml" filepath="$PROJECT_DIR$/.idea/pythonNode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/NetViz.iml" filepath="$PROJECT_DIR$/.idea/NetViz.iml" />
     </modules>
   </component>
 </project>
