@@ -33,3 +33,5 @@ while True:
         sock.sendto(message.encode(), (UDP_IP, UDP_PORT))
         print(f"Sent: {message}")
         time.sleep(2)   #Send updates every 20 seconds
+
+    time.sleep(2)

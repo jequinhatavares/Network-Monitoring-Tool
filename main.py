@@ -27,16 +27,19 @@ def load_graph():
         js_graph = json.load(f)
     return json_graph.node_link_graph(js_graph)
 
-def get_graph_figure(G):
-    pos = nx.spring_layout(G, seed=42)
-    edge_x, edge_y = [], []
 
+def get_graph_figure(G):
+    pos = nx.spring_layout(G, seed=42)  # Node positions
+
+    # Edge coordinates
+    edge_x, edge_y = [], []
     for edge in G.edges():
         x0, y0 = pos[edge[0]]
         x1, y1 = pos[edge[1]]
         edge_x.extend([x0, x1, None])
         edge_y.extend([y0, y1, None])
 
+    # Node coordinates and labels
     node_x, node_y, node_text = [], [], []
     for node in G.nodes():
         x, y = pos[node]
@@ -44,15 +47,36 @@ def get_graph_figure(G):
         node_y.append(y)
         node_text.append(f"Node {node}")
 
+    # Create figure
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=edge_x, y=edge_y, mode='lines', line=dict(width=1, color='gray')))
+
+    # Add edges as gray lines
     fig.add_trace(go.Scatter(
-        x=node_x, y=node_y, mode='markers+text',
-        marker=dict(size=10, color="lightblue"),
-        text=node_text, textposition="top center"
+        x=edge_x, y=edge_y,
+        mode='lines',
+        line=dict(width=2, color='lightgray'),
+        hoverinfo='none'
     ))
-    fig.update_layout(showlegend=False, margin=dict(l=10, r=10, t=10, b=10),
-                      xaxis=dict(visible=False), yaxis=dict(visible=False))
+
+    # Add nodes as blue markers with dark border
+    fig.add_trace(go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers+text',
+        marker=dict(size=40, color="pink", line=dict(width=2, color="black")),
+        text=node_text,
+        textposition="top center",
+        hoverinfo="text"
+    ))
+
+    # Layout tweaks for a cleaner look
+    fig.update_layout(
+        showlegend=False,
+        margin=dict(l=20, r=20, t=20, b=20),
+        xaxis=dict(showgrid=False, zeroline=False, visible=False),
+        yaxis=dict(showgrid=False, zeroline=False, visible=False),
+        plot_bgcolor="white"
+    )
+
     return fig
 
 app.layout = html.Div([
@@ -81,8 +105,8 @@ def udp_listener(sock):
                 if parent_IP != "None":
                     G.add_edge(parent_IP, node_IP)
                 save_graph(G)
-                print("Nodes in G on UDP:", G.nodes())
-                print("Edges in G on UDP:", G.edges())
+                #print("Nodes in G on UDP:", G.nodes())
+                #print("Edges in G on UDP:", G.edges())
         except ValueError:
             print(f"Invalid message received: {message}")
 
