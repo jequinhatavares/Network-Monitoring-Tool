@@ -8,13 +8,14 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import threading
 
+
 GRAPH_FILE = "graph.json"
 
 # Create the Dash app
 app = dash.Dash(__name__)
 
 # UDP Configuration
-my_IP = "192.168.186.1"
+my_IP = "118.237.96.100"
 UDP_PORT = 5000
 
 root_IP = "118.237.96.1"
