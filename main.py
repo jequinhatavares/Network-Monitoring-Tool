@@ -14,9 +14,12 @@ GRAPH_FILE = "graph.json"
 app = dash.Dash(__name__)
 
 # UDP Configuration
-my_IP = "192.168.1.85"
+my_IP = "192.168.186.1"
 UDP_PORT = 5000
-#G = nx.DiGraph()  # Directed graph to store network nodes
+
+root_IP = "118.237.96.1"
+
+
 
 def save_graph(g):
     g_json = json_graph.node_link_data(g)
@@ -97,27 +100,40 @@ def udp_listener(sock):
         message = data.decode().strip()
         try:
             message_type, *_ = message.split()
-            if message_type == "10":
-                message_type, node_IP, parent_IP = message.split()
+            if message_type == "3":
+                continue
+            if message_type == "8": # message type debug
+                message_type, viz_message_type, node_IP, parent_IP = message.split()
 
-                G = load_graph()
-                G.add_node(node_IP)
-                if parent_IP != "None":
-                    G.add_edge(parent_IP, node_IP)
-                save_graph(G)
+                if viz_message_type == '0': #new node message
+
+                    G = load_graph()
+                    G.add_node(node_IP)
+                    if parent_IP != "None":
+                        G.add_edge(parent_IP, node_IP)
+                    save_graph(G)
+
                 #print("Nodes in G on UDP:", G.nodes())
                 #print("Edges in G on UDP:", G.edges())
         except ValueError:
             print(f"Invalid message received: {message}")
 
-def start_listener():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((my_IP, UDP_PORT))
-    threading.Thread(target=udp_listener, args=(sock,), daemon=True).start()
+
+
+def send_message(message):
+    sock.sendto(message.encode(), (root_IP, UDP_PORT))
 
 save_graph(nx.DiGraph())
-start_listener()
+#start_udp_server()
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.bind((my_IP, UDP_PORT))
+threading.Thread(target=udp_listener, args=(sock,), daemon=True).start()
+
+
+
+msg = "7" + " " + my_IP
+send_message(msg)
 
 if __name__ == "__main__":
     app.run(debug=True)
