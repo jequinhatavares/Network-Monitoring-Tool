@@ -2,7 +2,7 @@ import socket
 import time
 
 # Server (root node) IP and port
-UDP_IP = "192.168.1.85"
+UDP_IP = "127.0.0.1"
 UDP_PORT = 5000
 
 # Create a UDP socket
@@ -15,7 +15,7 @@ parents = {
     "2.2.2.2": "1.1.1.1",
     "3.3.3.3": "1.1.1.1",
     "4.4.4.4": "2.2.2.2",
-    "5.5.5.5": "3.3.3.3"
+    "5.5.5.5": "2.2.2.2"
 }
 nodes2 = ["1", "2", "3", "4", "5"]
 parents2 = {
@@ -34,4 +34,4 @@ while True:
         print(f"Sent: {message}")
         time.sleep(2)   #Send updates every 20 seconds
 
-    time.sleep(2)
+    #break
