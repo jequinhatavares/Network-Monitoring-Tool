@@ -33,6 +33,9 @@ def load_graph():
 def get_graph_figure(G):
     pos = nx.spring_layout(G, seed=42)  # Node positions
 
+    # Identify root nodes (nodes with no incoming edges)
+    root_nodes = [node for node in G.nodes if G.in_degree(node) == 0]
+
     # Edge coordinates
     edge_x, edge_y = [], []
     for edge in G.edges():
@@ -42,12 +45,18 @@ def get_graph_figure(G):
         edge_y.extend([y0, y1, None])
 
     # Node coordinates and labels
-    node_x, node_y, node_text = [], [], []
+    node_x, node_y, node_text, node_colors = [], [], [], []
     for node in G.nodes():
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
         node_text.append(f"Node {node}")
+
+        # Assign different colors for root nodes
+        if node in root_nodes:
+            node_colors.append("pink")  # Root nodes in red
+        else:
+            node_colors.append("blue")  # Other nodes in pink
 
     # Create figure
     fig = go.Figure()
@@ -60,11 +69,11 @@ def get_graph_figure(G):
         hoverinfo='none'
     ))
 
-    # Add nodes as blue markers with dark border
+    # Add nodes with custom colors
     fig.add_trace(go.Scatter(
         x=node_x, y=node_y,
         mode='markers+text',
-        marker=dict(size=40, color="pink", line=dict(width=2, color="black")),
+        marker=dict(size=40, color=node_colors, line=dict(width=2, color="black")),
         text=node_text,
         textposition="top center",
         hoverinfo="text"
@@ -80,6 +89,7 @@ def get_graph_figure(G):
     )
 
     return fig
+
 
 app.layout = html.Div([
     html.H1("Real-Time Network Visualization"),
@@ -120,7 +130,7 @@ def read_serial():
                         if parent_IP != "-1.-1.-1.-1":
                           G.add_edge(parent_IP, node_IP)
                         save_graph(G)
-                        return
+                        pass
 
                   #if viz_message_type == "0": #New node message
                   #   logging_module,message_type, viz_message_type, node_IP, parent_IP = message.split()
