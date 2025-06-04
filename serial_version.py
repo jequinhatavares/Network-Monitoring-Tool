@@ -124,11 +124,19 @@ def read_serial():
 
                   match msg_payload:
 
-                     case ['0', node_IP, parent_IP]: #New node message
+                     case ['0', node_IP]: #New node message
                         G = load_graph()
                         G.add_node(node_IP)
                         if parent_IP != "-1.-1.-1.-1":
                           G.add_edge(parent_IP, node_IP)
+                        save_graph(G)
+                        pass
+
+                     case['1', node_IP, parent_IP]:  # Deleted node message
+                        G = load_graph()
+                        G.delete_node(node_IP)
+                        if parent_IP != "-1.-1.-1.-1":
+                            G.add_edge(parent_IP, node_IP)
                         save_graph(G)
                         pass
 
