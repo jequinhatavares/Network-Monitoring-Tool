@@ -1,0 +1,5 @@
+[
+  {"type": "ESP8266", "routing_messages": 150, "lifecycle_messages": 30, "middleware_messages": 80},
+  {"type": "ESP32", "routing_messages": 120, "lifecycle_messages": 45, "middleware_messages": 60},
+  {"type": "RaspberryPi", "routing_messages": 90, "lifecycle_messages": 70, "middleware_messages": 40}
+]
