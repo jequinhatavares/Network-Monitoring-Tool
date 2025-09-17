@@ -1,3 +1,4 @@
+import os
 import time
 from unittest import skipIf
 import serial
@@ -19,10 +20,10 @@ GRAPH_FILE = "graph.json"
 app = dash.Dash(__name__)
 
 
-
 def save_graph(g):
     g_json = json_graph.node_link_data(g, edges="links")
-    json.dump(g_json,open(GRAPH_FILE,'w'),indent=2)
+    json.dump(g_json, open(GRAPH_FILE, 'w'), indent=2)
+
 
 def load_graph():
     with open(GRAPH_FILE) as f:
@@ -97,68 +98,90 @@ app.layout = html.Div([
     dcc.Interval(id="graph-update", interval=1000, n_intervals=0)
 ])
 
+
 @app.callback(Output("network-graph", "figure"), [Input("graph-update", "n_intervals")])
 def update_graph(n):
     G = load_graph()
     return get_graph_figure(G)
 
-
+metrics = []
 def read_serial():
+    # arduino.write(bytes(x, 'utf-8'))
+    print(f"Listening for serial on {COM}...")
+    time.sleep(2)
+    arduino.write(b'\r\n')
+    while True:
+        # time.sleep(0.05)
+        data = arduino.readline()
 
-   #arduino.write(bytes(x, 'utf-8'))
-   print(f"Listening for serial on {COM}...")
-   while True:
-      #time.sleep(0.05)
-      data = arduino.readline()
-      if data != b'':
-         try:
-            message = data.decode().strip()
-
-            print(f"{message}")
+        if data != b'':
             try:
-               logging_module, message_type, *msg_payload = message.split()
+                message = data.decode().strip()
 
-               if logging_module == '[D]':
+                print(f"{message}")
+                try:
+                    #message_type, *msg_payload =
 
-                  #viz_message_type, *_ = msg_payload.split()
+                # viz_message_type, *_ = msg_payload.split()
 
-                  match msg_payload:
+                    match message.split():
 
-                     case ['0', node_IP]: #New node message
-                        G = load_graph()
-                        G.add_node(node_IP)
-                        if parent_IP != "0.0.0.0":
-                          G.add_edge(parent_IP, node_IP)
-                        save_graph(G)
-                        pass
+                        case ['8', '0', node_IP, parent_IP]:  # New node message
+                            G = load_graph()
+                            G.add_node(node_IP)
+                            if parent_IP != "0.0.0.0":
+                                G.add_edge(parent_IP, node_IP)
+                            save_graph(G)
+                            pass
 
-                     case['1', node_IP, parent_IP]:  # Deleted node message
-                        G = load_graph()
-                        G.delete_node(node_IP)
-                        if parent_IP != "0.0.0.0":
-                            G.add_edge(parent_IP, node_IP)
-                        save_graph(G)
-                        pass
+                        case ['8', '1', node_IP]:  # Deleted node message
+                            G = load_graph()
+                            G.delete_node(node_IP)
+                            if parent_IP != "0.0.0.0":
+                                G.add_edge(parent_IP, node_IP)
+                            save_graph(G)
+                            pass
 
-                  #if viz_message_type == "0": #New node message
-                  #   logging_module,message_type, viz_message_type, node_IP, parent_IP = message.split()
-                  #   print("DEBUG MESSAGE")
+                        case ['8', '3', device_type, init_time, search_time, join_time]:  # Reporting State machine times
+                            print(f"Metrics: {device_type=} {init_time=} {search_time=} {join_time=}")
+                            metrics.append(dict(
+                                type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
+                                init_time=init_time,
+                                search_time=search_time,
+                                join_time=join_time,
+                            ))
+                            print(f"{data=}")
+
+                # if viz_message_type == "0": #New node message
+                #   logging_module,message_type, viz_message_type, node_IP, parent_IP = message.split()
+                #   print("DEBUG MESSAGE")
+                except ValueError:
+                    pass
 
             except ValueError:
-               print(f"Invalid message received: {message}")
-               print(f"Logging Module: {logging_module}")
-
-         except ValueError:
-            pass
+                pass
 
 
+def cli():
+    n_join: int = len([file for file in os.listdir('logs') if file.startswith('run-join-')])
+    while True:
+        cmd = input(
+            "Press [1] to print metrics\n"
+            "Press [2] to generate JSON\n")
+        print(f"Command: {cmd}")
+        match cmd:
+            case '1':
+                print(f"{metrics=}")
+            case '2':
+                with open(f'logs/run-join-{n_join}.json', 'w', encoding='utf-8') as f:
+                    json.dump(metrics, f)
 
 threading.Thread(target=read_serial, args=(), daemon=True).start()
+threading.Thread(target=cli, args=(), daemon=True).start()
 
-
-#while True:
-   #num = input("Enter a number: ") # Taking input from user
+# while True:
+# num = input("Enter a number: ") # Taking input from user
 if __name__ == "__main__":
-   app.run(debug=True, use_reloader=False)
-    #while True:
+    app.run(debug=True, use_reloader=False)
+    # while True:
     #   continue
