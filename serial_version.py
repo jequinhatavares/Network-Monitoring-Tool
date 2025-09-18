@@ -104,7 +104,12 @@ def update_graph(n):
     G = load_graph()
     return get_graph_figure(G)
 
-metrics = []
+join_metrics = []
+parent_recovery_metrics = []
+message_metrics = []
+end_to_end_delay_metrics = []
+app_metrics = []
+
 def read_serial():
     # arduino.write(bytes(x, 'utf-8'))
     print(f"Listening for serial on {COM}...")
@@ -144,13 +149,67 @@ def read_serial():
 
                         case ['8', '3', device_type, init_time, search_time, join_time]:  # Reporting State machine times
                             print(f"Metrics: {device_type=} {init_time=} {search_time=} {join_time=}")
-                            metrics.append(dict(
+                            join_metrics.append(dict(
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
                                 init_time=init_time,
                                 search_time=search_time,
                                 join_time=join_time,
                             ))
                             print(f"{data=}")
+
+                        case ['8', '4', device_type, parent_recovery_time]:  # Reporting Parent Recovery time
+                            print(f"Metrics: {device_type=} {parent_recovery_time=}")
+                            parent_recovery_metrics.append(dict(
+                                type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
+                                parent_recovery_time=parent_recovery_time,
+                            ))
+                            print(f"{data=}")
+
+                        case ['8', '5',device_type,node_ip,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
+                              n_app,bytes_app,n_monitoring,bytes_monitoring]:  # Reporting the messages received fom each layer
+
+                            message_metrics.append(dict(
+                                type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
+                                node_ip=node_ip,
+                                routing_msg_count=n_routing,
+                                routing_bytes_count=bytes_routing,
+                                lifecycle_msg_count=n_lifecycle,
+                                lifecycle_bytes_count=bytes_lifecycle,
+                                middleware_msg_count=n_middleware,
+                                middleware_bytes_count=bytes_middleware,
+                                app_msg_count=n_app,
+                                app_bytes_count=bytes_app,
+                                monitoring_msg_count=n_monitoring,
+                                monitoring_bytes_count=bytes_monitoring,
+                            ))
+                            print(f"{data=}")
+
+                        case ['8', '6', device_type, parent_recovery_time]:  # Reporting End-To-End Delay
+                            print(f"Metrics: {device_type=} {parent_recovery_time=}")
+                            parent_recovery_metrics.append(dict(
+                                type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
+                                parent_recovery_time=parent_recovery_time,
+                            ))
+                            print(f"{data=}")
+
+                        case ['8', '6', *delay_data]:  # END_TO_END_DELAY message with variable node entries
+                            # Parse format: [node_ip] [delay] [hops] [node_ip] [delay] [hops] ...
+
+                            # Process data in chunks of 3 (ip, delay, hops)
+                            for i in range(0, len(delay_data), 3):
+                                if i + 2 < len(delay_data):  # Ensure we have a complete triplet
+                                    node_ip = delay_data[i]
+                                    delay_value = int(delay_data[i + 1])
+                                    hop_count = int(delay_data[i + 2])
+
+                                    end_to_end_delay_metrics.append(dict(
+                                        node_ip=node_ip,
+                                        latency=delay_value,
+                                        hop_count=hop_count
+                                    ))
+
+                            print(f"Parsed end-to-end delay metrics: {end_to_end_delay_metrics}")
+
 
                 # if viz_message_type == "0": #New node message
                 #   logging_module,message_type, viz_message_type, node_IP, parent_IP = message.split()
@@ -163,7 +222,12 @@ def read_serial():
 
 
 def cli():
+
     n_join: int = len([file for file in os.listdir('logs') if file.startswith('run-join-')])
+    n_parent_recovery: int = len([file for file in os.listdir('logs') if file.startswith('run-parent-recovery-')])
+    n_messages: int = len([file for file in os.listdir('logs') if file.startswith('run-messages-')])
+    n_end_to_end_delay: int = len([file for file in os.listdir('logs') if file.startswith('run-end-to-end-delay-')])
+
     while True:
         cmd = input(
             "Press [1] to print metrics\n"
@@ -171,10 +235,16 @@ def cli():
         print(f"Command: {cmd}")
         match cmd:
             case '1':
-                print(f"{metrics=}")
+                print(f"{join_metrics=} {parent_recovery_metrics=} {message_metrics=} {end_to_end_delay_metrics=} {app_metrics=}")
             case '2':
                 with open(f'logs/run-join-{n_join}.json', 'w', encoding='utf-8') as f:
-                    json.dump(metrics, f)
+                    json.dump(join_metrics, f)
+                with open(f'logs/run-parent-recovery-{n_parent_recovery}.json', 'w', encoding='utf-8') as f:
+                    json.dump(parent_recovery_metrics, f)
+                with open(f'logs/run-messages-{n_messages}.json', 'w', encoding='utf-8') as f:
+                    json.dump(message_metrics, f)
+                with open(f'logs/run-end-to-end-delay-{n_end_to_end_delay}.json', 'w', encoding='utf-8') as f:
+                    json.dump(end_to_end_delay_metrics, f)
 
 threading.Thread(target=read_serial, args=(), daemon=True).start()
 threading.Thread(target=cli, args=(), daemon=True).start()
