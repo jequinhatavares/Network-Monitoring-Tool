@@ -256,6 +256,8 @@ def cli():
     n_parent_recovery: int = len([file for file in os.listdir('logs') if file.startswith('run-parent-recovery-')])
     n_messages: int = len([file for file in os.listdir('logs') if file.startswith('run-messages-')])
     n_end_to_end_delay: int = len([file for file in os.listdir('logs') if file.startswith('run-end-to-end-delay-')])
+    n_app_init: int = len([file for file in os.listdir('logs') if file.startswith('run-app-init-')])
+    n_app_inference: int = len([file for file in os.listdir('logs') if file.startswith('run-app-inference-')])
 
     while True:
         cmd = input(
@@ -264,7 +266,7 @@ def cli():
         print(f"Command: {cmd}")
         match cmd:
             case '1':
-                print(f"{join_metrics=} {parent_recovery_metrics=} {message_metrics=} {end_to_end_delay_metrics=} {app_metrics=}")
+                print(f"{join_metrics=} \n{parent_recovery_metrics=} \n{message_metrics=} \n{end_to_end_delay_metrics=} \n{app_init_metrics=} \n{app_inference_metrics=}")
             case '2':
                 with open(f'logs/run-join-{n_join}.json', 'w', encoding='utf-8') as f:
                     json.dump(join_metrics, f)
@@ -274,6 +276,10 @@ def cli():
                     json.dump(message_metrics, f)
                 with open(f'logs/run-end-to-end-delay-{n_end_to_end_delay}.json', 'w', encoding='utf-8') as f:
                     json.dump(end_to_end_delay_metrics, f)
+                with open(f'logs/run-app-init-{n_app_init}.json', 'w', encoding='utf-8') as f:
+                    json.dump(app_init_metrics, f)
+                with open(f'logs/run-app-inference-{n_app_inference}.json', 'w', encoding='utf-8') as f:
+                    json.dump(app_inference_metrics, f)
 
 threading.Thread(target=read_serial, args=(), daemon=True).start()
 threading.Thread(target=cli, args=(), daemon=True).start()
