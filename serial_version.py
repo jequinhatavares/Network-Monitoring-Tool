@@ -108,7 +108,8 @@ join_metrics = []
 parent_recovery_metrics = []
 message_metrics = []
 end_to_end_delay_metrics = []
-app_metrics = []
+app_init_metrics = []
+app_inference_metrics = []
 
 def read_serial():
     # arduino.write(bytes(x, 'utf-8'))
@@ -165,6 +166,7 @@ def read_serial():
                             ))
                             print(f"{data=}")
 
+
                         case ['8', '5',device_type,node_ip,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
                               n_app,bytes_app,n_monitoring,bytes_monitoring]:  # Reporting the messages received fom each layer
 
@@ -184,13 +186,7 @@ def read_serial():
                             ))
                             print(f"{data=}")
 
-                        case ['8', '6', device_type, parent_recovery_time]:  # Reporting End-To-End Delay
-                            print(f"Metrics: {device_type=} {parent_recovery_time=}")
-                            parent_recovery_metrics.append(dict(
-                                type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
-                                parent_recovery_time=parent_recovery_time,
-                            ))
-                            print(f"{data=}")
+
 
                         case ['8', '6', *delay_data]:  # END_TO_END_DELAY message with variable node entries
                             # Parse format: [node_ip] [delay] [hops] [node_ip] [delay] [hops] ...
@@ -209,6 +205,39 @@ def read_serial():
                                     ))
 
                             print(f"Parsed end-to-end delay metrics: {end_to_end_delay_metrics}")
+
+                        case ['8', '7', *app_data]:  # Reporting Data Level Information
+                            if len(app_data) > 0:
+                                message_type = int(app_data[0])
+
+                                if message_type == 0:  # NEURAL_NETWORK_SETUP_TIME
+                                    if len(app_data) >= 2:
+                                        app_init_metrics.append(dict(
+                                            setup_time_ms=int(app_data[1])
+                                        ))
+                                    else:
+                                        print("Warning: Incomplete setup time data")
+
+                                elif message_type == 1:  # NEURAL_NETWORK_INFERENCE_TIME
+                                    if len(app_data) >= 6:
+                                        n_outputs = int(app_data[5])
+                                        if len(app_data) >= 6 + n_outputs:
+                                            app_inference_metrics.append(dict(
+                                                strategy_type='Inject' if device_type == '0' else 'PubSub' if device_type == '1' else 'Topology',
+                                                inference_id=int(app_data[2]),
+                                                inference_time_ms=int(app_data[3]),
+                                                nack_count=int(app_data[4]),
+                                                n_outputs=n_outputs,
+                                                output_values=[float(app_data[6 + i]) for i in range(n_outputs)]
+                                            ))
+                                        else:
+                                            print(f"Warning: Insufficient data for {n_outputs} outputs")
+                                    else:
+                                        print("Warning: Incomplete inference time data")
+                                else:
+                                    print(f"Warning: Unknown app message type {message_type}")
+                            else:
+                                print("Warning: Empty app data received")
 
 
                 # if viz_message_type == "0": #New node message
