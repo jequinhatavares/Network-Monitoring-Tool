@@ -434,6 +434,7 @@ def cli():
                 arduino.write(b'\r\n')
                 time.sleep(0.5)
                 arduino.write(b'8')
+                arduino.write(b'7')
 
 threading.Thread(target=read_serial, args=(), daemon=True).start()
 threading.Thread(target=cli, args=(), daemon=True).start()
