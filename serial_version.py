@@ -155,8 +155,6 @@ def read_serial():
                         case ['8', '1', node_IP]:  # Deleted node message
                             G = load_graph()
                             G.remove_node(node_IP)
-                            if parent_IP != "0.0.0.0":
-                                G.add_edge(parent_IP, node_IP)
                             save_graph(G)
                             pass
 
