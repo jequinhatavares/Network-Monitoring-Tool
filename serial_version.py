@@ -346,7 +346,7 @@ def read_serial():
 
                             print(f"Parsed end-to-end delay metrics: {end_to_end_delay_metrics}")
 
-                        case ['9', '8', *app_data]:  # Reporting Data Level Information
+                        case ['8', '8', *app_data]:  # Reporting Data Level Information
                             if len(app_data) > 0:
                                 message_type = int(app_data[0])
 
