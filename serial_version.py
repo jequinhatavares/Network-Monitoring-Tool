@@ -228,7 +228,7 @@ def read_serial():
                                 search_time=search_time,
                                 join_time=join_time,
                             ))
-                            print(f"{data=}")
+                            #print(f"{data=}")
 
                         case ['8', '4', device_type, parent_recovery_time]:  # Reporting Parent Recovery time
                             print(f"Metrics: {device_type=} {parent_recovery_time=}")
@@ -236,7 +236,7 @@ def read_serial():
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
                                 parent_recovery_time=parent_recovery_time,
                             ))
-                            print(f"{data=}")
+                            #print(f"{data=}")
 
 
                         case ['8', '5',device_type,node_ip,monitoring_time,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
@@ -257,10 +257,13 @@ def read_serial():
                                 monitoring_msg_count=n_monitoring,
                                 monitoring_bytes_count=bytes_monitoring,
                             ))
-                            print(f"{data=}")
+                            #print(f"{data=}")
 
 
                         case ['8', '6', message_type_code, *rest]: #Message Continuous
+                            # MONITORING_MESSAGE MESSAGE_CONTINUOUS[Message Type] [Strategy Type][Message SubType] [N Bytes] or
+                            # MONITORING_MESSAGE MESSAGE_CONTINUOUS [Message Type] [Message SubType] [N Bytes]
+
                             # Convert message type to integer
                             msg_type_int = int(message_type_code)
                             msg_type_name = MESSAGE_TYPE_NAMES.get(msg_type_int, "UNKNOWN")
@@ -291,11 +294,8 @@ def read_serial():
                                     message_continuous_metrics.append(dict(
                                         timestamp=time.time(),
                                         messageType=msg_type_name,
-                                        messageTypeCode=msg_type_int,
                                         strategyType=strategy_name,
-                                        strategyTypeCode=strategy_int,
                                         messageSubtype=subtype_name,
-                                        messageSubtypeCode=msg_subtype_int,
                                         n_bytes=int(n_bytes)
                                     ))
                                 else:
@@ -311,22 +311,21 @@ def read_serial():
                                     if msg_type_name == "DATA_MESSAGE":
                                         msg_subtype_name = NEURAL_NETWORK_MESSAGE_NAMES.get(msg_subtype_int,
                                                                                         f"UNKNOWN({msg_subtype_int})")
-                                    else:
+                                    else:# subType=-1
                                         msg_subtype_name = None  # other messages don't have subtypes
 
                                     # Append to the metrics list
                                     message_continuous_metrics.append(dict(
                                         timestamp=time.time(),
                                         messageType=msg_type_name,
-                                        messageTypeCode=msg_type_int,
+                                        strategyType=None,
                                         messageSubtype=msg_subtype_name,
-                                        messageSubtypeCode=msg_subtype_int if msg_subtype_name else None,
                                         n_bytes=int(n_bytes)
                                     ))
                                 else:
                                     print(f"Error: Invalid message format for {msg_type_name}: {data}")
 
-                            print(f"{data=}")
+                            #print(f"{data=}")
 
 
                         case ['8', '7', *delay_data]:  # END_TO_END_DELAY message with variable node entries
@@ -347,11 +346,12 @@ def read_serial():
 
                             print(f"Parsed end-to-end delay metrics: {end_to_end_delay_metrics}")
 
-                        case ['9', '7', *app_data]:  # Reporting Data Level Information
+                        case ['9', '8', *app_data]:  # Reporting Data Level Information
                             if len(app_data) > 0:
                                 message_type = int(app_data[0])
 
                                 if message_type == 0:  # NEURAL_NETWORK_SETUP_TIME
+                                    #NEURAL_NETWORK_SETUP_TIME [NN SetupTime]
                                     if len(app_data) >= 2:
                                         app_init_metrics.append(dict(
                                             setup_time_ms=int(app_data[1])
@@ -362,16 +362,16 @@ def read_serial():
                                 elif message_type == 1:  # NEURAL_NETWORK_INFERENCE_TIME
                                     #NEURAL_NETWORK_INFERENCE_TIME [StrategyType] [Inference Id] [Inference Time] [NACK Count] [N outputs] [Output Value 1]...[OutputValueN]
                                     if len(app_data) >= 6:
-                                        n_outputs = int(app_data[4])
-                                        if len(app_data) >= 5 + n_outputs:
-                                            strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(app_data[0], "UNKNOWN")
+                                        n_outputs = int(app_data[5])
+                                        if len(app_data) >= 6 + n_outputs:
+                                            strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(int(app_data[1]), "UNKNOWN")
                                             app_inference_metrics.append(dict(
                                                 strategy_type=strategy_name,
-                                                inference_id=int(app_data[1]),
-                                                inference_time_ms=int(app_data[2]),
-                                                nack_count=int(app_data[3]),
+                                                inference_id=int(app_data[2]),
+                                                inference_time_ms=int(app_data[3]),
+                                                nack_count=int(app_data[4]),
                                                 n_outputs=n_outputs,
-                                                output_values=[float(app_data[5 + i]) for i in range(n_outputs)]
+                                                output_values=[float(app_data[6 + i]) for i in range(n_outputs)]
                                             ))
                                         else:
                                             print(f"Warning: Insufficient data for {n_outputs} outputs")
@@ -412,7 +412,8 @@ def cli():
         print(f"Command: {cmd}")
         match cmd:
             case '1':
-                print(f"{join_metrics=} \n{parent_recovery_metrics=} \n{message_metrics=} \n{end_to_end_delay_metrics=} \n{app_init_metrics=} \n{app_inference_metrics=}")
+                print(f"{join_metrics=} \n{parent_recovery_metrics=} \n{message_metrics=} \n{message_continuous_metrics=} "
+                      f"\n{end_to_end_delay_metrics=} \n{app_init_metrics=} \n{app_inference_metrics=} ")
             case '2':
                 with open(f'logs/run-join-{n_join}.json', 'w', encoding='utf-8') as f:
                     json.dump(join_metrics, f)
