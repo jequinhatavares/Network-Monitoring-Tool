@@ -150,7 +150,8 @@ NEURAL_NETWORK_MESSAGE_NAMES = {
 MIDDLEWARE_STRATEGY_NAMES = {
     0: "INJECT",
     1: "PUBSUB",
-    2: "TOPOLOGY"
+    2: "TOPOLOGY",
+    3: "NONE"
 }
 
 # Middleware message subtypes
@@ -309,7 +310,7 @@ def read_serial():
                                     # Determine subtype name only for DATA_MESSAGE
                                     if msg_type_name == "DATA_MESSAGE":
                                         msg_subtype_name = NEURAL_NETWORK_MESSAGE_NAMES.get(msg_subtype_int,
-                                                                                            f"UNKNOWN({msg_subtype_int})")
+                                                                                        f"UNKNOWN({msg_subtype_int})")
                                     else:
                                         msg_subtype_name = None  # other messages don't have subtypes
 
@@ -359,17 +360,18 @@ def read_serial():
                                         print("Warning: Incomplete setup time data")
 
                                 elif message_type == 1:  # NEURAL_NETWORK_INFERENCE_TIME
+                                    #NEURAL_NETWORK_INFERENCE_TIME [StrategyType] [Inference Id] [Inference Time] [NACK Count] [N outputs] [Output Value 1]...[OutputValueN]
                                     if len(app_data) >= 6:
-                                        n_outputs = int(app_data[5])
-                                        if len(app_data) >= 6 + n_outputs:
-                                            device_type = app_data[1]
+                                        n_outputs = int(app_data[4])
+                                        if len(app_data) >= 5 + n_outputs:
+                                            strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(app_data[0], "UNKNOWN")
                                             app_inference_metrics.append(dict(
-                                                strategy_type='Inject' if device_type == '0' else 'PubSub' if device_type == '1' else 'Topology',
-                                                inference_id=int(app_data[2]),
-                                                inference_time_ms=int(app_data[3]),
-                                                nack_count=int(app_data[4]),
+                                                strategy_type=strategy_name,
+                                                inference_id=int(app_data[1]),
+                                                inference_time_ms=int(app_data[2]),
+                                                nack_count=int(app_data[3]),
                                                 n_outputs=n_outputs,
-                                                output_values=[float(app_data[6 + i]) for i in range(n_outputs)]
+                                                output_values=[float(app_data[5 + i]) for i in range(n_outputs)]
                                             ))
                                         else:
                                             print(f"Warning: Insufficient data for {n_outputs} outputs")
