@@ -16,13 +16,25 @@ arduino = serial.Serial(port=COM, baudrate=115200, timeout=.1)
 
 GRAPH_FILE = "graph.json"
 
-# Create the Dash app
-app = dash.Dash(__name__)
 
 
 def save_graph(g):
     g_json = json_graph.node_link_data(g, edges="links")
     json.dump(g_json, open(GRAPH_FILE, 'w'), indent=2)
+
+# Initialize with an empty graph when the program starts
+def initialize_graph():
+    if os.path.exists(GRAPH_FILE):
+        os.remove(GRAPH_FILE)  # Remove existing graph file
+    G = nx.DiGraph()
+    save_graph(G)
+
+# Call initialization function before creating the Dash app
+initialize_graph()
+
+# Create the Dash app
+app = dash.Dash(__name__)
+
 
 
 def load_graph():
@@ -142,7 +154,7 @@ def read_serial():
 
                         case ['8', '1', node_IP]:  # Deleted node message
                             G = load_graph()
-                            G.delete_node(node_IP)
+                            G.remove_node(node_IP)
                             if parent_IP != "0.0.0.0":
                                 G.add_edge(parent_IP, node_IP)
                             save_graph(G)
