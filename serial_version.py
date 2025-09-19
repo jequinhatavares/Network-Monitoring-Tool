@@ -167,12 +167,13 @@ def read_serial():
                             print(f"{data=}")
 
 
-                        case ['8', '5',device_type,node_ip,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
+                        case ['8', '5',device_type,node_ip,monitoring_time,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
                               n_app,bytes_app,n_monitoring,bytes_monitoring]:  # Reporting the messages received fom each layer
 
                             message_metrics.append(dict(
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
                                 node_ip=node_ip,
+                                monitoring_time=monitoring_time,
                                 routing_msg_count=n_routing,
                                 routing_bytes_count=bytes_routing,
                                 lifecycle_msg_count=n_lifecycle,
