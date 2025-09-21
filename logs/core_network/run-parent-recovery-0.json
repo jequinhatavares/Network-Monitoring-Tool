@@ -1,0 +1,34 @@
+[
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "11175"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "10943"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "12131"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "10839"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "12585"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "12934"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "12934"
+  },
+  {
+    "type": "ESP32",
+    "parent_recovery_time": "10631"
+  }
+]

@@ -1,0 +1,786 @@
+[
+  {
+    "timestamp": 1758374296.1813016,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758374299.709883,
+    "messageType": "CHILD_REGISTRATION_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758374299.7528389,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 20
+  },
+  {
+    "timestamp": 1758374320.702459,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758374321.2506542,
+    "messageType": "CHILD_REGISTRATION_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758374321.3116174,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 20
+  },
+  {
+    "timestamp": 1758374330.8877864,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758374339.9736705,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758374339.9826672,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 28
+  },
+  {
+    "timestamp": 1758374339.9886684,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 19
+  },
+  {
+    "timestamp": 1758374351.8985953,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 92
+  },
+  {
+    "timestamp": 1758374360.9952226,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758374364.7581317,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 29
+  },
+  {
+    "timestamp": 1758374364.7651298,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758374364.8170755,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 20
+  },
+  {
+    "timestamp": 1758374374.6720662,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 107
+  },
+  {
+    "timestamp": 1758374411.9031532,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 107
+  },
+  {
+    "timestamp": 1758374434.6723094,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 107
+  },
+  {
+    "timestamp": 1758374471.9049094,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 107
+  },
+  {
+    "timestamp": 1758374479.7610397,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 49
+  },
+  {
+    "timestamp": 1758374494.6731195,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 107
+  },
+  {
+    "timestamp": 1758374501.3190277,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 49
+  },
+  {
+    "timestamp": 1758374520.7134295,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 47
+  },
+  {
+    "timestamp": 1758374531.906213,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 109
+  },
+  {
+    "timestamp": 1758374544.8283432,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 46
+  },
+  {
+    "timestamp": 1758374554.6748712,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 109
+  },
+  {
+    "timestamp": 1758374591.91269,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 110
+  },
+  {
+    "timestamp": 1758374614.6771965,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 111
+  },
+  {
+    "timestamp": 1758374651.9150724,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374674.676621,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 111
+  },
+  {
+    "timestamp": 1758374711.91251,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374734.6790524,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374771.9154303,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374794.6800396,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374831.9170609,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374854.6812155,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374891.9250648,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374914.686513,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374951.9240851,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758374974.6840944,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375011.9232192,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375034.6859484,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375071.926368,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375094.6882079,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375131.9295435,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375154.687926,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375191.9341187,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375214.6950262,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375251.9311264,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375274.6903121,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375297.7264585,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375297.772662,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 49
+  },
+  {
+    "timestamp": 1758375311.9332492,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 113
+  },
+  {
+    "timestamp": 1758375328.651447,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375332.3321939,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758375332.3401697,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758375332.3962264,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375334.6936796,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375371.9344547,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375385.011587,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375385.0573153,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758375391.882146,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375394.6964772,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 113
+  },
+  {
+    "timestamp": 1758375395.3450098,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758375395.3536358,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758375395.4186566,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 69
+  },
+  {
+    "timestamp": 1758375431.9365714,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375448.7837627,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375448.8182697,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758375454.6951056,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 113
+  },
+  {
+    "timestamp": 1758375454.8668487,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375458.3321505,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758375458.341269,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758375458.3966882,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375491.944409,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375514.6983063,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375551.9410899,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375570.3992054,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375570.58226,
+    "messageType": "CHILD_REGISTRATION_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375570.6857057,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375570.6937034,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375611.942952,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375630.6866806,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375681.508356,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375685.3873553,
+    "messageType": "CHILD_REGISTRATION_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375685.493506,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 114
+  },
+  {
+    "timestamp": 1758375685.5043614,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375685.517373,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375690.6883643,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375745.4964838,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375750.6895845,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375782.7887871,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375787.56579,
+    "messageType": "CHILD_REGISTRATION_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375787.6593325,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 114
+  },
+  {
+    "timestamp": 1758375787.670333,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375787.682607,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375810.6906483,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375835.7197216,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375841.6957953,
+    "messageType": "CHILD_REGISTRATION_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375841.8023496,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 114
+  },
+  {
+    "timestamp": 1758375841.8136246,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375841.9304466,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375870.6944182,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375901.7984357,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375930.6945586,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 112
+  },
+  {
+    "timestamp": 1758375952.2126894,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 31
+  },
+  {
+    "timestamp": 1758375952.2565591,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  },
+  {
+    "timestamp": 1758375959.241624,
+    "messageType": "PARENT_DISCOVERY_REQUEST",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 16
+  },
+  {
+    "timestamp": 1758375961.796406,
+    "messageType": "FULL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 113
+  },
+  {
+    "timestamp": 1758375962.9764583,
+    "messageType": "PARTIAL_ROUTING_TABLE_UPDATE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 30
+  },
+  {
+    "timestamp": 1758375962.9844618,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 27
+  },
+  {
+    "timestamp": 1758375963.037579,
+    "messageType": "MONITORING_MESSAGE",
+    "strategyType": null,
+    "messageSubtype": null,
+    "n_bytes": 12
+  }
+]
