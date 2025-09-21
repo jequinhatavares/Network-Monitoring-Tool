@@ -1,1 +1,0 @@
-[{"type": "ESP32", "init_time": "103", "search_time": "2520", "join_time": "6801"}, {"type": "ESP32", "init_time": "105", "search_time": "3919", "join_time": "7100"}, {"type": "RPI", "init_time": "1", "search_time": "879", "join_time": "9426"}, {"type": "ESP8266", "init_time": "996", "search_time": "2188", "join_time": "20725"}]
