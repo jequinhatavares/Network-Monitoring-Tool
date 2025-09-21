@@ -245,6 +245,8 @@ def read_serial():
                             message_metrics.append(dict(
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
                                 node_ip=node_ip,
+
+
                                 monitoring_time=monitoring_time,
                                 routing_msg_count=n_routing,
                                 routing_bytes_count=bytes_routing,
@@ -351,10 +353,11 @@ def read_serial():
                                 message_type = int(app_data[0])
 
                                 if message_type == 0:  # NEURAL_NETWORK_SETUP_TIME
-                                    #NEURAL_NETWORK_SETUP_TIME [NN SetupTime]
+                                    #NEURAL_NETWORK_SETUP_TIME [NN SetupTime] [Missing ACKs]
                                     if len(app_data) >= 2:
                                         app_init_metrics.append(dict(
-                                            setup_time_ms=int(app_data[1])
+                                            setup_time_ms=int(app_data[1]),
+                                            missing_acks=int(app_data[2])
                                         ))
                                     else:
                                         print("Warning: Incomplete setup time data")
@@ -434,6 +437,7 @@ def cli():
                 arduino.write(b'\r\n')
                 time.sleep(0.5)
                 arduino.write(b'8')
+                time.sleep(3)
                 arduino.write(b'7')
 
 threading.Thread(target=read_serial, args=(), daemon=True).start()
