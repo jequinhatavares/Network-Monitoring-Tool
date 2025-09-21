@@ -268,7 +268,7 @@ def read_serial():
 
                             # Convert message type to integer
                             msg_type_int = int(message_type_code)
-                            msg_type_name = MESSAGE_TYPE_NAMES.get(msg_type_int, "UNKNOWN")
+                            msg_type_name = MESSAGE_TYPE_NAMES.get(msg_type_int, None)
 
                             # Handle different message types
                             if msg_type_name == "MIDDLEWARE_MESSAGE":
@@ -279,18 +279,21 @@ def read_serial():
                                     msg_subtype_int = int(message_subtype)
 
                                     # Get strategy name
-                                    strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(strategy_int,"UNKNOWN")
+                                    strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(strategy_int,None)
 
                                     # Get subtype name based on strategy
                                     if strategy_int == 0:  # INJECT
-                                        subtype_name = INJECT_MESSAGE_NAMES.get(msg_subtype_int,"UNKNOWN")
+                                        subtype_name = INJECT_MESSAGE_NAMES.get(msg_subtype_int,None)
                                     elif strategy_int == 1:  # PUBSUB
-                                        subtype_name = PUBSUB_MESSAGE_NAMES.get(msg_subtype_int,"UNKNOWN")
+                                        subtype_name = PUBSUB_MESSAGE_NAMES.get(msg_subtype_int,None)
                                     elif strategy_int == 2:  # TOPOLOGY
-                                        subtype_name = TOPOLOGY_MESSAGE_NAMES.get(msg_subtype_int,"UNKNOWN")
+                                        subtype_name = TOPOLOGY_MESSAGE_NAMES.get(msg_subtype_int,None)
 
                                     else:
-                                        subtype_name = "UNKNOWN"
+                                        subtype_name = None
+
+
+
 
                                     # Append to the metrics list
                                     message_continuous_metrics.append(dict(
@@ -311,10 +314,10 @@ def read_serial():
 
                                     # Determine subtype name only for DATA_MESSAGE
                                     if msg_type_name == "DATA_MESSAGE":
-                                        msg_subtype_name = NEURAL_NETWORK_MESSAGE_NAMES.get(msg_subtype_int,
-                                                                                        f"UNKNOWN({msg_subtype_int})")
+                                        msg_subtype_name = NEURAL_NETWORK_MESSAGE_NAMES.get(msg_subtype_int,None)
                                     else:# subType=-1
                                         msg_subtype_name = None  # other messages don't have subtypes
+
 
                                     # Append to the metrics list
                                     message_continuous_metrics.append(dict(
@@ -367,7 +370,9 @@ def read_serial():
                                     if len(app_data) >= 6:
                                         n_outputs = int(app_data[5])
                                         if len(app_data) >= 6 + n_outputs:
-                                            strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(int(app_data[1]), "UNKNOWN")
+                                            strategy_name = MIDDLEWARE_STRATEGY_NAMES.get(int(app_data[1]), None)
+
+
                                             app_inference_metrics.append(dict(
                                                 strategy_type=strategy_name,
                                                 inference_id=int(app_data[2]),
