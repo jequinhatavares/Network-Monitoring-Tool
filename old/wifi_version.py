@@ -9,7 +9,7 @@ from dash.dependencies import Input, Output
 import threading
 
 
-GRAPH_FILE = "graph.json"
+GRAPH_FILE = "../graph.json"
 
 # Create the Dash app
 app = dash.Dash(__name__)

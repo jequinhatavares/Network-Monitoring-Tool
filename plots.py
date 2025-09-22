@@ -27,12 +27,7 @@ def get_dfs():
 
     return df,df2
 
-# Define custom colours for each device
-device_colors = {
-    "ESP8266": "#FF851B",  # orange
-    "ESP32": "#3D9970",  # green
-    "RaspberryPi": "#FF4136"  # red
-}
+
 
 def plot_violin(df: pd.DataFrame):
     # Melt the DataFrame to long format for plotting
