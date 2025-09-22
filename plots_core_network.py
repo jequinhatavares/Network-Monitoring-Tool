@@ -4,6 +4,8 @@ import pandas as pd
 import plotly.express as px
 import json
 import plotly
+import plotly.colors as pc
+
 
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -331,22 +333,90 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
         )
     fig.show()
 
+def parent_recovery_bar_plot(df: pd.DataFrame):
+    # Calculate mean recovery time by device type
+    # Convert milliseconds to seconds
+    df['parent_recovery_time'] = df['parent_recovery_time'] / 1000
+
+    mean_df = df.groupby('type')['parent_recovery_time'].mean().reset_index()
+
+    # Define the desired order
+    desired_order = ['ESP8266', 'ESP32', 'RPI']
+
+    # Convert 'type' to categorical with specified order
+    mean_df['type'] = pd.Categorical(mean_df['type'], categories=desired_order, ordered=True)
+
+    # Sort the DataFrame by the categorical order
+    mean_df = mean_df.sort_values('type')
+
+    # Create bar plot
+    fig = px.bar(mean_df,
+                 x='type',
+                 y='parent_recovery_time',
+                 color='type',  # Use Plotly's default colors
+                 template="plotly_white",)
+
+
+    # Add bold annotations with specific size
+    for i, row in enumerate(mean_df.itertuples()):
+        fig.add_annotation(
+            x=row.type,
+            y=row.parent_recovery_time,
+            text=f"<b>{row.parent_recovery_time:.2f}s</b>",  # Bold text using HTML tags
+            showarrow=False,
+            yshift=10,
+            font=dict(
+                family='Helvetica',
+                size=12,  # Specific size
+                color='black'
+            ),
+            bgcolor='white',
+        )
+
+    # Update layout with Helvetica font
+    fig.update_layout(
+        title={
+            'text': 'Mean Parent Recovery Time by Device Type',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+        font_family='Helvetica',
+        title_font_family='Helvetica',
+        xaxis_title='Device',
+        yaxis_title='Mean Parent Recovery Time (s)',
+        showlegend=False  # Remove legend since colors are self-explanatory
+    )
+
+    # Clean axes
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12)
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray'
+    )
+
+    fig.show()
 
 if __name__ == '__main__':
     join_times_df, parent_recovery_df, message_interval_df, message_continuous_df = get_dfs()
 
-    # with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
-    #     print(join_times_df)
-    #     print(parent_recovery_df)
-    #     print(message_interval_df)
-    #     print(message_continuous_df)
+    with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
+        print(join_times_df)
+        print(parent_recovery_df)
+        print(message_interval_df)
+        print(message_continuous_df)
 
-    figures = plot_bar_states_mean_pdevice(join_times_df)
+    #figures = plot_bar_states_mean_pdevice(join_times_df)
 
     # Show per device
-    figures["ESP8266"].show()
+    #figures["ESP8266"].show()
     # figures["ESP32"].show()
     # figures["RPI"].show()
+    #stacked_bar_plot_integration_time(join_times_df)
 
-
-    stacked_bar_plot_integration_time(join_times_df)
+    parent_recovery_bar_plot(parent_recovery_df)
