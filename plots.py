@@ -25,6 +25,7 @@ def get_dfs():
     df2 = df2.astype({'routing_messages': 'int32','lifecycle_messages': 'int32','middleware_messages': 'int32','type': 'str'})
 
 
+
     return df,df2
 
 
