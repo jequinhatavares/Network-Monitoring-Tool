@@ -397,14 +397,203 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
 
     fig.show()
 
+
+def plot_mean_messages(df: pd.DataFrame):
+    # Select message-related columns
+    msg_cols = [
+        "routing_msg_count", "routing_bytes_count",
+        "lifecycle_msg_count", "lifecycle_bytes_count",
+        "middleware_msg_count", "middleware_bytes_count",
+        "app_msg_count", "app_bytes_count",
+        "monitoring_msg_count", "monitoring_bytes_count"
+    ]
+
+    # Compute mean across all rows
+    means = df[msg_cols].mean()
+
+    # Compute bytes/s using monitoring_time (convert to seconds)
+    monitoring_time_s = df["monitoring_time"].iloc[0] / 1000.0
+
+    agg = pd.DataFrame({
+        "count": [
+            means["routing_msg_count"],
+            means["lifecycle_msg_count"],
+            means["middleware_msg_count"],
+            means["app_msg_count"],
+            means["monitoring_msg_count"],
+        ],
+        "bytes": [
+            means["routing_bytes_count"],
+            means["lifecycle_bytes_count"],
+            means["middleware_bytes_count"],
+            means["app_bytes_count"],
+            means["monitoring_bytes_count"],
+        ]
+    }, index=["routing", "lifecycle", "middleware", "app", "monitoring"])
+
+    # Add Bytes/s column
+    agg["bytes_per_s"] = agg["bytes"] / monitoring_time_s
+
+    agg = agg.reset_index().rename(columns={"index": "message_type"})
+    print(agg)
+
+    # Scatter plot: average count vs bytes
+    fig_scatter = px.scatter(
+        agg,
+        x="count",
+        y="bytes",
+        size="bytes",
+        text="message_type",
+        color="message_type",
+        title="Average Message Count vs Bytes per Type"
+    )
+    fig_scatter.update_traces(textposition="top center")
+    fig_scatter.show()
+
+    # Grouped bar chart: counts, bytes, bytes/s
+    fig_bar = go.Figure(data=[
+        go.Bar(name="Average Count", x=agg["message_type"], y=agg["count"]),
+        go.Bar(name="Average Bytes", x=agg["message_type"], y=agg["bytes"]),
+        go.Bar(name="Average Bytes/s", x=agg["message_type"], y=agg["bytes_per_s"])
+    ])
+    fig_bar.update_layout(
+        barmode="group",
+        title="Average Messages, Bytes and Bytes/s per Type",
+        xaxis_title="Message Type",
+        yaxis_title="Average Value"
+    )
+    fig_bar.show()
+
+    # Pie chart: proportions of average counts
+    fig_pie_count = px.pie(
+        agg,
+        values="count",
+        names="message_type",
+        title="Proportion of Average Message Counts"
+    )
+    fig_pie_count.show()
+
+    # Pie chart: proportions of average bytes
+    fig_pie_bytes = px.pie(
+        agg,
+        values="bytes",
+        names="message_type",
+        title="Proportion of Average Message Bytes"
+    )
+    fig_pie_bytes.show()
+
+
+
+def plot_scatter_message_continuous(df: pd.DataFrame):
+    # Convert timestamp to relative seconds (starting from 0)
+    first_timestamp = df['timestamp'].iloc[0]
+    df['relative_time'] = df['timestamp'] - first_timestamp
+
+    # Create human-readable message type labels
+    message_type_mapping = {
+        'PARENT_DISCOVERY_REQUEST': 'Parent Discovery Request',
+        'CHILD_REGISTRATION_REQUEST': 'Child Registration Request',
+        'MONITORING_MESSAGE': 'Monitoring Message',
+        'PARTIAL_ROUTING_TABLE_UPDATE': 'Partial Routing Update',
+        'FULL_ROUTING_TABLE_UPDATE': 'Full Routing Update'
+    }
+
+    df['messageType_readable'] = df['messageType'].map(message_type_mapping)
+
+    # Create the scatter plot
+    fig = px.scatter(df,
+                     x='relative_time',
+                     y='n_bytes',
+                     color='messageType_readable',
+                     title='',
+                     labels={
+                         'relative_time': 'Time (seconds from start)',
+                         'n_bytes': 'Message Size (bytes)',
+                         'messageType_readable': 'Message Type'
+                     },
+                     hover_data={
+                         'relative_time': ':.2f',
+                         'n_bytes': True,
+                         'messageType_readable': True
+                     },
+                     hover_name='messageType_readable')
+
+    # Customize the layout for better readability
+    fig.update_layout(
+        xaxis_title='Time Elapsed (seconds)',
+        yaxis_title='Message Size (bytes)',
+        legend_title='Message Types',
+        title={
+            'text': 'Network Message Analysis: Received Messages Over Time',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+
+        legend=dict(
+            orientation="v",
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=1.02,
+            bgcolor='rgba(255,255,255,0.9)'
+        ),
+        plot_bgcolor='white',
+        width=1000,
+        height=600
+    )
+
+    # Customize the markers - make them larger and more visible
+    fig.update_traces(
+        marker=dict(
+            size=14,  # Larger balls
+            opacity=0.8,
+            line=dict(width=1, color='DarkSlateGrey')
+        ),
+        selector=dict(mode='markers')
+    )
+
+    # Customize axes
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+
+
+    # Add some helpful annotations
+    fig.add_annotation(
+        x=0.02, y=0.98,
+        xref="paper", yref="paper",
+        text=f"Total Messages: {len(df)}",
+        showarrow=False,
+        bgcolor="white",
+        bordercolor="black",
+        borderwidth=1
+    )
+
+    # Show the plot
+    fig.show()
+
+
 if __name__ == '__main__':
     join_times_df, parent_recovery_df, message_interval_df, message_continuous_df = get_dfs()
 
-    with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
-        print(join_times_df)
-        print(parent_recovery_df)
-        print(message_interval_df)
-        print(message_continuous_df)
+    #with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
+    #     print(join_times_df)
+    #     print(parent_recovery_df)
+    #     print(message_interval_df)
+    #      print(message_continuous_df)
 
     #figures = plot_bar_states_mean_pdevice(join_times_df)
 
@@ -414,4 +603,10 @@ if __name__ == '__main__':
     # figures["RPI"].show()
     #stacked_bar_plot_integration_time(join_times_df)
 
-    parent_recovery_bar_plot(parent_recovery_df)
+    #parent_recovery_bar_plot(parent_recovery_df)
+
+    #plot_mean_messages(message_interval_df)
+
+    plot_scatter_message_continuous(message_continuous_df)
+
+
