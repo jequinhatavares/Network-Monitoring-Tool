@@ -343,18 +343,13 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
     # Define the desired order
     desired_order = ['ESP8266', 'ESP32', 'RPI']
 
-    # Convert 'type' to categorical with specified order
-    mean_df['type'] = pd.Categorical(mean_df['type'], categories=desired_order, ordered=True)
-
-    # Sort the DataFrame by the categorical order
-    mean_df = mean_df.sort_values('type')
-
     # Create bar plot
     fig = px.bar(mean_df,
                  x='type',
                  y='parent_recovery_time',
                  color='type',  # Use Plotly's default colors
-                 template="plotly_white",)
+                 template="plotly_white",
+                 category_orders={"type": desired_order})
 
 
     # Add bold annotations with specific size
