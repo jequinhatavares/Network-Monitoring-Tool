@@ -263,7 +263,7 @@ def read_serial():
 
 
                         case ['8', '6', message_type_code, *rest]: #Message Continuous
-                            # MONITORING_MESSAGE MESSAGE_CONTINUOUS[Message Type] [Strategy Type][Message SubType] [N Bytes] or
+                            # MONITORING_MESSAGE MESSAGE_CONTINUOUS[Message Type] [Strategy Type] [Message SubType] [N Bytes] or
                             # MONITORING_MESSAGE MESSAGE_CONTINUOUS [Message Type] [Message SubType] [N Bytes]
 
                             # Convert message type to integer
@@ -291,9 +291,6 @@ def read_serial():
 
                                     else:
                                         subtype_name = None
-
-
-
 
                                     # Append to the metrics list
                                     message_continuous_metrics.append(dict(
