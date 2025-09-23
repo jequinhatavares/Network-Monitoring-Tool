@@ -3,8 +3,10 @@ import os
 import pandas as pd
 import plotly.express as px
 import json
-import plotly
 import plotly.colors as pc
+
+import random
+
 
 
 import plotly.graph_objects as go
@@ -36,7 +38,12 @@ def get_dfs():
 
     return app_init_df,app_inference_df,message_continuous_df
 
-#def clean_df(pd:pd.DataFrame):
+def clean_df(df: pd.DataFrame):
+    # iterate over all rows
+    for idx, row in df.iterrows():
+        if row["messageType"] == "DATA_MESSAGE" and row["messageSubtype"] != "None":
+            header_size = random.randint(28, 31)
+            df.at[idx, "n_bytes"] += header_size
 
 
 def plot_scatter_message_readable(df: pd.DataFrame):
@@ -369,10 +376,12 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
 if __name__ == '__main__':
     app_init_df,app_inference_df,message_continuous_df = get_dfs()
 
-    # with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
+    with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
     #      print(app_init_df)
     #      print(app_inference_df)
-    #      print(message_continuous_df)
+          print(message_continuous_df)
+
+    clean_df(message_continuous_df)
 
     #plot_scatter_message_readable(message_continuous_df)
     plot_scatter_message_continuous2(message_continuous_df)
