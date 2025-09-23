@@ -60,7 +60,7 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path:str, show_plot=False
     max_id = df.loc[df['inference_time_ms'].idxmax(), 'inference_id']
 
     # Alternative version with different styling
-    fig2 = px.scatter(df, x='inference_id', y='inference_time_ms',
+    fig2 = px.scatter(df, x=df.index, y='inference_time_ms',
                       color='inference_time_ms',  # Color by value
                       size='inference_time_ms',  # Size by value
                       color_continuous_scale='plasma')

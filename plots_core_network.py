@@ -221,9 +221,9 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
     }
 
     state_colors = {
-        'init_time': "#d7377e",  # Plotly blue
-        'search_time': "#64d3f6",  # Plotly orange
-        'join_time': "#b8f193"  # Plotly green
+        'init_time': px.colors.qualitative.Plotly[0],  # Plotly blue
+        'search_time': px.colors.qualitative.Plotly[1],  # Plotly orange
+        'join_time': px.colors.qualitative.Plotly[2]  # Plotly green
     }
 
     devices = ['ESP8266', 'ESP32', 'RPI']
@@ -593,15 +593,15 @@ if __name__ == '__main__':
     #     print(message_interval_df)
     #      print(message_continuous_df)
 
-    #figures = plot_bar_states_mean_pdevice(join_times_df)
+    figures = plot_bar_states_mean_pdevice(join_times_df)
 
     # Show per device
-    #figures["ESP8266"].show()
-    # figures["ESP32"].show()
-    # figures["RPI"].show()
-    #stacked_bar_plot_integration_time(join_times_df)
+    figures["ESP8266"].show()
+    figures["ESP32"].show()
+    figures["RPI"].show()
+    stacked_bar_plot_integration_time(join_times_df)
 
-    #parent_recovery_bar_plot(parent_recovery_df)
+    parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 
