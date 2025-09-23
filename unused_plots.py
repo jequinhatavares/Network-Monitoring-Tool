@@ -1,5 +1,7 @@
 import pandas as pd
-
+import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 
 def box_plot_with_3_devices_by_state(df: pd.DataFrame):
     states = ['init_time', 'search_time', 'join_time']
@@ -612,4 +614,119 @@ def plot_violin_inference_time(df: pd.DataFrame):
     )
 
     fig2.show()
+
+
+def create_message_hierarchy_sunburst(df, metrics):
+    """
+    Create a standalone sunburst plot for message hierarchy
+    """
+
+    # Create readable labels
+    def get_readable_label(message_type):
+        label_map = {
+            'DATA_MESSAGE': 'Data Messages',
+            'PARENT_DISCOVERY_REQUEST': 'Parent Discovery',
+            'ROUTING_UPDATE': 'Routing Updates',
+            'ROUTING_FULL_UPDATE': 'Full Routing Updates',
+            'ROUTING_PARTIAL_UPDATE': 'Partial Routing Updates',
+            'LIFECYCLE_MESSAGE': 'Lifecycle Messages',
+            'MIDDLEWARE_MESSAGE': 'Middleware Messages',
+            'SERVICE_DISCOVERY': 'Service Discovery',
+            'HEARTBEAT': 'Heartbeat Messages',
+            'ACK': 'Acknowledgements',
+            'NACK': 'Negative Acknowledgements'
+        }
+        return label_map.get(message_type, message_type.replace('_', ' ').title())
+
+    def get_readable_subtype(subtype):
+        if pd.isna(subtype):
+            return None
+        subtype_map = {
+            'FULL': 'Full Update',
+            'PARTIAL': 'Partial Update',
+            'REQUEST': 'Request',
+            'RESPONSE': 'Response',
+            'INIT': 'Initialization',
+            'TERMINATE': 'Termination'
+        }
+        return subtype_map.get(str(subtype).upper(), str(subtype).title())
+
+    # Prepare data
+    df_clean = df.copy()
+    df_clean['readable_type'] = df_clean['messageType'].apply(get_readable_label)
+    df_clean['readable_subtype'] = df_clean['messageSubtype'].apply(get_readable_subtype)
+
+    # Count messages and apply 5% threshold
+    type_counts = df_clean['readable_type'].value_counts()
+    total_messages = len(df_clean)
+    threshold = 0.05 * total_messages
+
+    main_types = type_counts[type_counts >= threshold].index
+    other_types = type_counts[type_counts < threshold].index
+
+    # Build hierarchy data
+    labels = []
+    parents = []
+    values = []
+
+    # Add main categories
+    for msg_type in main_types:
+        labels.append(msg_type)
+        parents.append("")
+        values.append(type_counts[msg_type])
+
+        # Add subtypes
+        type_data = df_clean[df_clean['readable_type'] == msg_type]
+        subtype_counts = type_data['readable_subtype'].value_counts()
+
+        if not subtype_counts.empty and not (subtype_counts.index.isna().all()):
+            for subtype, count in subtype_counts.items():
+                if pd.notna(subtype):
+                    labels.append(f"{subtype}")
+                    parents.append(msg_type)
+                    values.append(count)
+
+    # Add "Other" category
+    if len(other_types) > 0:
+        other_count = type_counts[other_types].sum()
+        labels.append("Other Messages")
+        parents.append("")
+        values.append(other_count)
+
+        for msg_type in other_types:
+            labels.append(f"{msg_type}")
+            parents.append("Other Messages")
+            values.append(type_counts[msg_type])
+
+    # Create sunburst plot
+    fig = go.Figure(go.Sunburst(
+        labels=labels,
+        parents=parents,
+        values=values,
+        branchvalues="total",
+        maxdepth=2,
+        marker=dict(
+            colors=px.colors.qualitative.Pastel,
+            line=dict(width=2, color='white')
+        ),
+        textinfo="label+percent parent",
+        textfont=dict(size=14),
+        hovertemplate='<b>%{label}</b><br>Count: %{value}<br>Percentage: %{percentParent:.1%}<extra></extra>'
+    ))
+
+    fig.update_layout(
+        title={
+            'text': "<b>Message Distribution Hierarchy</b><br><sub>Types with <5% grouped into 'Other'</sub>",
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': {'size': 18}
+        },
+        height=700,
+        margin=dict(t=100, l=0, r=0, b=0),
+        paper_bgcolor='white'
+    )
+
+    fig.show()
+    return fig
+
 

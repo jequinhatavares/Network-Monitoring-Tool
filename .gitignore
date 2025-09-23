@@ -2,3 +2,4 @@
 graph.json
 graph_test.json
 *.json
+/images

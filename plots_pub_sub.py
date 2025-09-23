@@ -224,9 +224,14 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     )
 
     # Show the plot
-    fig.show()
+    #fig.show()
 
-    fig.write_image("/images/messages_d_nn_12_pubsub.png", scale=3)
+    fig.write_image(
+        "images/messages_d_nn_12_pubsub.png",
+        width=1000,  # width in pixels
+        height=600,  # height in pixels
+        scale=4  # multiplies the base resolution
+    )
 
 
 def plot_scatter_inference_time(df: pd.DataFrame):
@@ -294,14 +299,9 @@ def plot_scatter_inference_time(df: pd.DataFrame):
         showgrid=True
     )
 
-    fig2.show()
+    #fig2.show()
 
-    fig2.write_image("/images/inference_time_d_nn_12_pubsub.png", scale=3)
-
-
-
-import pandas as pd
-from datetime import datetime
+    fig2.write_image("images/inference_time_d_nn_12_pubsub.png", scale=3)
 
 
 def analyze_message_metrics(df):
@@ -439,7 +439,148 @@ def analyze_message_metrics(df):
     return results
 
 
-def create_message_metrics_visualizations(df, metrics):
+def create_throughput_bar_plot(df, metrics):
+
+    """
+    Create a standalone bar plot for throughput by message category
+    """
+
+    # Categorize messages into exactly four categories
+    def categorize_message(row):
+        message_type = str(row['messageType']).upper()
+
+        if 'ROUTING' in message_type:
+            return 'Routing Messages'  # Includes all routing (partial, full, other)
+        elif any(keyword in message_type for keyword in ['MIDDLEWARE', 'SERVICE', 'INTERNAL']):
+            return 'Middleware Messages'
+        elif 'DATA' in message_type:
+            return 'Data Messages'
+        else:
+            # Everything else goes to Lifecycle (discovery, parent, lifecycle, heartbeat, etc.)
+            return 'Lifecycle Messages'
+
+    df_categorized = df.copy()
+    df_categorized['category'] = df_categorized.apply(categorize_message, axis=1)
+
+    # Calculate throughput (bytes per second) for each of the four categories
+    category_throughput = df_categorized.groupby('category')['n_bytes'].sum() / metrics['duration_seconds']
+
+    # Define the order of categories for consistent display
+    category_order = [ 'Data Messages','Routing Messages', 'Middleware Messages', 'Lifecycle Messages']
+
+    # Reorder the throughput data according to our desired order
+    category_throughput = category_throughput.reindex(
+        [cat for cat in category_order if cat in category_throughput.index])
+
+    # Create bar plot
+    fig = go.Figure()
+
+
+    # Add bars for each category
+    for i, category in enumerate(category_throughput.index):
+        fig.add_trace(go.Bar(
+            x=[category],
+            y=[category_throughput[category]],
+            name=category,
+            marker_color=px.colors.qualitative.Plotly[i],
+            text=[f'<b>{category_throughput[category]:.2f} B/s<b>'],
+            textposition='outside',
+            hovertemplate=f'<b>{category}</b><br>Throughput: {category_throughput[category]:.2f} B/s<extra></extra>'
+        ))
+
+    fig.update_layout(
+        title={
+            'text': 'Throughput by Message Category',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+        xaxis_title="Message Category",
+        yaxis_title="Throughput (B/s)",
+        showlegend=False,  # Since we're using colored bars with labels, legend isn't needed
+        plot_bgcolor='white',
+        font=dict(size=12),
+        bargap=0.3  # Space between bars
+    )
+
+    # Customize axes
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        showgrid=False
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray'
+    )
+
+
+    fig.write_image("images/throughput_d_nn_12_pubsub.png", scale=3)
+
+
+
+def create_four_category_pie(df):
+    """
+    Create a pie plot with exactly the four specified categories
+    """
+
+    def categorize_message_strict(message_type):
+        message_type = str(message_type).upper()
+
+        if any(keyword in message_type for keyword in ['MIDDLEWARE']):
+            return 'Middleware'
+        elif 'DATA' in message_type:
+            return 'Data'
+        elif 'ROUTING' in message_type:
+            return 'Routing'
+        else:
+            return 'Lifecycle'  # Everything else goes to Lifecycle
+
+    df_categorized = df.copy()
+    df_categorized['category'] = df_categorized['messageType'].apply(categorize_message_strict)
+
+    category_counts = df_categorized['category'].value_counts()
+
+    # Option 1: Use Plotly's qualitative color sequences
+    colors = px.colors.qualitative.Plotly[:4]  # First 4 colors from Plotly palette
+
+    fig = go.Figure(data=[go.Pie(
+        labels=category_counts.index,
+        values=category_counts.values,
+        hole=0.3,  # Donut chart style
+        marker=dict(colors=colors),
+        textinfo='percent+label',
+        hovertemplate='<b>%{label} Messages</b><br>Percentage: %{percent}<br>Count: %{value}<extra></extra>'
+    )])
+
+    fig.update_layout(
+        title={
+            'text': 'Message Distribution',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+        showlegend=False,
+    )
+
+    # Customize axes
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        showgrid=False
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        showgrid=False
+    )
+
+    fig.show()
+
+    fig.write_image("images/messages_pie_d_nn_12_pubsub.png", scale=3)
 
 
 if __name__ == '__main__':
@@ -454,9 +595,15 @@ if __name__ == '__main__':
 
     results = analyze_message_metrics(message_continuous_df)
 
-    create_message_metrics_visualizations(message_continuous_df,results)
+    #create_throughput_bar_plot(message_continuous_df,results)
+    #create_message_hierarchy_sunburst(message_continuous_df,results)
 
-    #plot_scatter_message_continuous2(message_continuous_df)
+    #create_four_category_pie(message_continuous_df)
+    #create_throughput_bar_plot(message_continuous_df,results)
+
+    #create_message_metrics_visualizations(message_continuous_df,results)
+
+    plot_scatter_message_continuous2(message_continuous_df)
     #plot_scatter_inference_time(app_inference_df)
 
 
