@@ -372,19 +372,193 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
 
     # Call the function with your dataframe
 
+def plot_box_inference_time(df: pd.DataFrame):
+    # Box plot without points and without outliers
+    fig = px.box(df, y='inference_time_ms',
+                 title='Inference Time Distribution',
+                 labels={'inference_time_ms': 'Inference Time (ms)'})
+
+    # Hide points and outliers
+    fig.update_traces(boxpoints=False,  # Hide individual points
+                      marker=dict(opacity=0))  # Hide outliers
+
+    fig.update_layout(
+        yaxis_title='Inference Time (ms)',
+        showlegend=False,
+        height=500
+    )
+
+    fig.show()
+
+
+def plot_violin_inference_time(df: pd.DataFrame):
+    # Enhanced violin plot
+    fig = px.violin(df, y='inference_time_ms',
+                    box=True,  # Show box plot inside
+                    points=False,  # No individual points
+                    title='<b>Inference Time Distribution</b>',
+                    color_discrete_sequence=['#1f77b4'])  # Custom color
+
+    # Calculate statistics using pandas only
+    mean_time = df['inference_time_ms'].mean()
+    median_time = df['inference_time_ms'].median()
+    std_time = df['inference_time_ms'].std()
+    min_time = df['inference_time_ms'].min()
+    max_time = df['inference_time_ms'].max()
+
+    # Enhanced layout
+    fig.update_layout(
+        yaxis_title='<b>Inference Time (ms)</b>',
+        xaxis_title='<b>Strategy Type</b>',
+        showlegend=False,
+        height=600,
+        font=dict(size=12),
+        plot_bgcolor='rgba(240,240,240,0.1)',
+        paper_bgcolor='white',
+        title_x=0.5,  # Center title
+        title_font_size=20
+    )
+
+    # Add statistical annotations
+    fig.add_hline(y=mean_time, line_dash="dash", line_color="red",
+                  annotation_text=f"Mean: {mean_time:.1f}ms",
+                  annotation_position="right")
+
+    fig.add_hline(y=median_time, line_dash="dot", line_color="green",
+                  annotation_text=f"Median: {median_time:.1f}ms",
+                  annotation_position="left")
+
+    # Add quartile lines
+    q1 = df['inference_time_ms'].quantile(0.25)
+    q3 = df['inference_time_ms'].quantile(0.75)
+    fig.add_hline(y=q1, line_dash="dash", line_color="orange", line_width=0.5)
+    fig.add_hline(y=q3, line_dash="dash", line_color="orange", line_width=0.5)
+
+    # Customize the violin and box appearance
+    fig.update_traces(
+        meanline_visible=True,  # Show mean line
+        points=False,  # No points
+        box_width=0.2,  # Width of the inner box
+        line_color='black',  # Outline color
+        fillcolor='lightblue',  # Fill color
+        opacity=0.7  # Transparency
+    )
+
+    # Add a summary annotation box
+    fig.add_annotation(
+        x=0.02, y=0.98,
+        xref="paper", yref="paper",
+        text=f"Statistics:<br>Min: {min_time:.1f}ms<br>Max: {max_time:.1f}ms<br>Std: {std_time:.1f}ms<br>IQR: {q3 - q1:.1f}ms",
+        showarrow=False,
+        bgcolor="white",
+        bordercolor="black",
+        borderwidth=1,
+        borderpad=4
+    )
+
+    fig.show()
+
+    # Alternative: Simple but elegant version
+    fig2 = px.violin(df, y='inference_time_ms',
+                     box=True,
+                     points=False,
+                     title='<b>Inference Time Distribution</b><br><i>With Statistical Summary</i>')
+
+    fig2.update_traces(meanline_visible=True,
+                       box_width=0.15,
+                       fillcolor='lightseagreen',
+                       line_color='darkblue')
+
+    fig2.update_layout(
+        yaxis_title='Inference Time (ms)',
+        showlegend=False,
+        height=500
+    )
+
+    fig2.show()
+
+def plot_scatter_inference_time(df: pd.DataFrame):
+    # Create scatter plot
+    fig = px.scatter(df, x='inference_id', y='inference_time_ms',
+                     title='<b>Inference Time by Inference ID</b>',
+                     labels={'inference_time_ms': 'Inference Time (ms)', 'inference_id': 'Inference ID'})
+
+    # Calculate statistics
+    min_time = df['inference_time_ms'].min()
+    max_time = df['inference_time_ms'].max()
+    mean_time = df['inference_time_ms'].mean()
+
+    # Find which inference IDs have min and max values
+    min_id = df.loc[df['inference_time_ms'].idxmin(), 'inference_id']
+    max_id = df.loc[df['inference_time_ms'].idxmax(), 'inference_id']
+
+    # Alternative version with different styling
+    fig2 = px.scatter(df, x='inference_id', y='inference_time_ms',
+                      color='inference_time_ms',  # Color by value
+                      size='inference_time_ms',  # Size by value
+                      color_continuous_scale='plasma')
+
+    # Add statistical lines
+    fig2.add_hline(y=min_time, line_dash="dash", line_color="grey", annotation_text=f"Min: {min_time:.1f}ms")
+    fig2.add_hline(y=max_time, line_dash="dash", line_color="grey", annotation_text=f"Max: {max_time:.1f}ms")
+    fig2.add_hline(y=mean_time, line_dash="dash", line_color="grey", annotation_text=f"Mean: {mean_time:.1f}ms")
+
+    fig2.update_layout(
+        xaxis_title='Inference ID',
+        yaxis_title='Inference Time (ms)',
+        title={
+            'text': 'Inference Time',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+        plot_bgcolor='white',
+        coloraxis_colorbar=dict(title="Time (ms)")
+    )
+
+    fig2.update_traces(
+        marker=dict(
+            size=22,  # Larger balls
+            opacity=0.8,
+            line=dict(width=1, color='white')
+        ),
+        selector=dict(mode='markers')
+    )
+
+    # Customize axes
+    fig2.update_xaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+
+    fig2.update_yaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+
+    fig2.show()
 
 if __name__ == '__main__':
     app_init_df,app_inference_df,message_continuous_df = get_dfs()
 
     with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
     #      print(app_init_df)
-    #      print(app_inference_df)
-          print(message_continuous_df)
+          print(app_inference_df)
+    #      print(message_continuous_df)
 
     clean_df(message_continuous_df)
 
-    #plot_scatter_message_readable(message_continuous_df)
-    plot_scatter_message_continuous2(message_continuous_df)
+    #plot_scatter_message_continuous2(message_continuous_df)
+
+    #plot_box_inference_time(app_inference_df)
+    #plot_violin_inference_time(app_inference_df)
+    plot_scatter_inference_time(app_inference_df)
 
 
 
