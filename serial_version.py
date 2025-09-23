@@ -143,7 +143,6 @@ NEURAL_NETWORK_MESSAGE_NAMES = {
     8: "NN_WORKER_REGISTRATION",
     9: "NN_INPUT_REGISTRATION",
     10: "NN_OUTPUT_REGISTRATION",
-    # 11: "NN_RESULTS",  # optional
 }
 
 # Middleware strategy types
