@@ -36,6 +36,8 @@ def get_dfs():
 
     return app_init_df,app_inference_df,message_continuous_df
 
+#def clean_df(pd:pd.DataFrame):
+
 
 def plot_scatter_message_readable(df: pd.DataFrame):
     # Convert timestamp to relative seconds (starting from 0)
@@ -88,6 +90,8 @@ def plot_scatter_message_readable(df: pd.DataFrame):
             return MESSAGE_TYPE_NAMES.get(row['messageType'], row['messageType'])
 
     df['message_readable'] = df.apply(map_message, axis=1)
+
+
 
     # Create scatter plot
     fig = px.scatter(
@@ -182,60 +186,79 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     df['relative_time'] = df['timestamp'] - first_timestamp
 
     # Mapping of data message subtypes (neural network)
-    DATA_MESSAGE_SUBTYPES = {
-        0: "Assign Computation",
-        1: "Assign Input",
-        2: "Assign Output",
-        3: "Assign Output Targets",
-        4: "Neuron Output",
-        5: "Forward",
-        6: "NACK",
-        7: "ACK",
-        8: "Worker Registration",
-        9: "Input Registration",
-        10: "Output Registration",
+    data_message_subtype_mapping = {
+        "NN_ASSIGN_COMPUTATION": "Assign Computation",
+        "NN_ASSIGN_INPUT": "Assign Input",
+        "NN_ASSIGN_OUTPUT": "Assign Output",
+        "NN_ASSIGN_OUTPUT_TARGETS": "Assign Output Targets",
+        "NN_NEURON_OUTPUT": "Neuron Output",
+        "NN_FORWARD": "Forward",
+        "NN_NACK": "NACK",
+        "NN_ACK": "ACK",
+        "NN_WORKER_REGISTRATION": "Worker Registration",
+        "NN_INPUT_REGISTRATION": "Input Registration",
+        "NN_OUTPUT_REGISTRATION": "Output Registration",
+        "None": "Neuron Output(Forward)",
     }
 
     # Mapping of middleware message subtypes (pub/sub)
-    MIDDLEWARE_MESSAGE_SUBTYPES = {
-        0: "Subscribe",
-        1: "Unsubscribe",
-        2: "Advertise",
-        3: "Unadvertise",
-        4: "Node Topics Update",
-        5: "Network Topics Update"
+    middleware_message_subtype_mapping = {
+        "PUBSUB_SUBSCRIBE": "Subscribe",
+        "PUBSUB_UNSUBSCRIBE": "Unsubscribe",
+        "PUBSUB_ADVERTISE": "Advertise",
+        "PUBSUB_UNADVERTISE": "Withdraw",
+        "PUBSUB_NODE_TOPICS_UPDATE": "Node Topics Update",
+        "PUBSUB_NETWORK_TOPICS_UPDATE": "Network Topics Update"
     }
 
-    # Create human-readable message type labels with subtypes
+    # Main message type mapping
+    message_type_mapping = {
+        'PARENT_DISCOVERY_REQUEST': 'Parent Discovery Request',
+        'CHILD_REGISTRATION_REQUEST': 'Child Registration Request',
+        'MONITORING_MESSAGE': 'Monitoring Message',
+        'PARTIAL_ROUTING_TABLE_UPDATE': 'Partial Routing Update',
+        'FULL_ROUTING_TABLE_UPDATE': 'Full Routing Update',
+        'DATA_MESSAGE': 'Data Message',
+        'MIDDLEWARE_MESSAGE': 'Middleware Message',
+    }
+
+    # Define fixed order for categories
+    category_order = [
+        'Monitoring Message',
+        'Parent Discovery Request',
+        'Child Registration Request',
+        'Partial Routing Update',
+        'Full Routing Update',
+
+        'Neuron Output',
+        'Neuron Output(Forward)',
+        'ACK',
+        'None',
+        'Worker Registration',
+        'Input Registration',
+        'Output Registration',
+
+        'Node Topics Update',
+    ]
+
+    # Gather the data that is going to be displayed with the types or sub types
     def get_full_message_name(row):
         message_type = row['messageType']
         subtype = row.get('messageSubtype', None)
 
         # Handle DATA_MESSAGE with subtypes
         if message_type == 'DATA_MESSAGE' and pd.notna(subtype):
-            if subtype in DATA_MESSAGE_SUBTYPES:
-                return DATA_MESSAGE_SUBTYPES[subtype]
-            else:
-                return f"Data Message - Unknown Subtype {subtype}"
+            subtype_name = data_message_subtype_mapping.get(subtype, f"{subtype}")
+            return f"{subtype_name}"
+
 
         # Handle MIDDLEWARE_MESSAGE with subtypes
         elif message_type == 'MIDDLEWARE_MESSAGE' and pd.notna(subtype):
-            if subtype in MIDDLEWARE_MESSAGE_SUBTYPES:
-                return f"Middleware - {MIDDLEWARE_MESSAGE_SUBTYPES[subtype]}"
-            else:
-                return f"Middleware Message - Unknown Subtype {subtype}"
+            subtype_name = middleware_message_subtype_mapping.get(subtype, f"{subtype}")
+            return f"{subtype_name}"
 
-        # Handle messages without subtypes or unknown types
+        # Handle messages without subtypes
         else:
-            message_type_mapping = {
-                'DATA_MESSAGE': 'Data Message',
-                'MIDDLEWARE_MESSAGE': 'Middleware Message',
-                'PARENT_DISCOVERY_REQUEST': 'Parent Discovery Request',
-                'CHILD_REGISTRATION_REQUEST': 'Child Registration Request',
-                'MONITORING_MESSAGE': 'Monitoring Message',
-                'PARTIAL_ROUTING_TABLE_UPDATE': 'Partial Routing Update',
-                'FULL_ROUTING_TABLE_UPDATE': 'Full Routing Update'
-            }
             return message_type_mapping.get(message_type, message_type)
 
     df['messageType_readable'] = df.apply(get_full_message_name, axis=1)
@@ -245,11 +268,11 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
                      x='relative_time',
                      y='n_bytes',
                      color='messageType_readable',
-                     title='',
+                     category_orders={"messageType_readable": category_order},
                      labels={
                          'relative_time': 'Time (seconds from start)',
                          'n_bytes': 'Message Size (bytes)',
-                         'messageType_readable': 'Message Type/Subtype'
+                         'messageType_readable': 'Messages'
                      },
                      hover_data={
                          'relative_time': ':.2f',
@@ -257,13 +280,37 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
                          'messageType': True,
                          'messageSubtype': True
                      },
-                     hover_name='messageType_readable')
+                     hover_name='messageType_readable',)
+
+    # Update traces with legendrank
+    for trace in fig.data:
+        legendrank = -1
+        category = trace.name
+        if category in data_message_subtype_mapping.values():
+            # print(f"{category=}, DM")
+            legendrank = 2
+            trace.legendgrouptitle = {'text': f"<b>Data Messages<b>"}
+        if category in middleware_message_subtype_mapping.values():
+            # print(f"{category=}, MwM")
+            legendrank = 3
+            trace.legendgrouptitle = {'text': f"<b>Middleware Messages<b>"}
+        if category in message_type_mapping.values():
+            # print(f"{category=}, MT")
+            legendrank = 1
+            trace.legendgrouptitle = {'text': f"<b>Core Network Messages<b>"}
+        if legendrank == -1:
+            print(f"{category=} Not found in types, continuing...")
+            continue
+        trace.legendgroup = f"group_{legendrank}"  # Optional: set group name
+
+        trace.legendrank = legendrank
+        trace.showlegend = True  # Ensure it shows in legend
 
     # Customize the layout for better readability
     fig.update_layout(
         xaxis_title='Time Elapsed (seconds)',
         yaxis_title='Message Size (bytes)',
-        legend_title='Message Types/Subtypes',
+        legend_title='<b>Messages<b>',
         title={
             'text': 'Network Message Analysis: Received Messages Over Time',
             'x': 0.5,
@@ -276,7 +323,10 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
             y=0.99,
             xanchor="left",
             x=1.02,
-            bgcolor='rgba(255,255,255,0.9)'
+            bgcolor='rgba(255,255,255,0.9)',
+            tracegroupgap=15,
+            itemclick='toggle',
+            itemdoubleclick='toggleothers'
         ),
         plot_bgcolor='white',
         width=1000,
@@ -313,6 +363,9 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     # Show the plot
     fig.show()
 
+    # Call the function with your dataframe
+
+
 if __name__ == '__main__':
     app_init_df,app_inference_df,message_continuous_df = get_dfs()
 
@@ -321,7 +374,7 @@ if __name__ == '__main__':
     #      print(app_inference_df)
     #      print(message_continuous_df)
 
-    plot_scatter_message_readable(message_continuous_df)
+    #plot_scatter_message_readable(message_continuous_df)
     plot_scatter_message_continuous2(message_continuous_df)
 
 
