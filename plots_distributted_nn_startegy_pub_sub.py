@@ -3,12 +3,9 @@ import os
 import pandas as pd
 import plotly.express as px
 import json
-import plotly.colors as pc
+from datetime import datetime
 
 import random
-
-
-
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
@@ -44,147 +41,6 @@ def clean_df(df: pd.DataFrame):
         if row["messageType"] == "DATA_MESSAGE" and row["messageSubtype"] != "None":
             header_size = random.randint(28, 31)
             df.at[idx, "n_bytes"] += header_size
-
-
-def plot_scatter_message_readable(df: pd.DataFrame):
-    # Convert timestamp to relative seconds (starting from 0)
-    first_timestamp = df['timestamp'].iloc[0]
-    df['relative_time'] = df['timestamp'] - first_timestamp
-
-    # Human-readable main message types
-    MESSAGE_TYPE_NAMES = {
-        'DATA': 'Data Message',
-        'MIDDLEWARE': 'Middleware Message',
-        'CONTROL': 'Control Message',  # example if you have other types
-        # Add other main types if needed
-    }
-
-    # Mapping of neural network message subtypes
-    NEURAL_NETWORK_MESSAGE_NAMES = {
-        0: "NN Assign Computation",
-        1: "NN Assign Input",
-        2: "NN Assign Output",
-        3: "NN Assign Output Targets",
-        4: "NN Neuron Output",
-        5: "NN Forward",
-        6: "NN NACK",
-        7: "NN ACK",
-        8: "NN Worker Registration",
-        9: "NN Input Registration",
-        10: "NN Output Registration",
-    }
-
-    # Mapping of PUBSUB (middleware) message subtypes
-    PUBSUB_MESSAGE_NAMES = {
-        0: "PubSub Subscribe",
-        1: "PubSub Unsubscribe",
-        2: "PubSub Advertise",
-        3: "PubSub Unadvertise",
-        4: "PubSub Node Topics Update",
-        5: "PubSub Network Topics Update"
-    }
-
-    # Map to human-readable names
-    def map_message(row):
-        if row['messageType'] in ['DATA', 'MIDDLEWARE']:
-            if row['strategyType'] == 'NEURAL_NETWORK':
-                return NEURAL_NETWORK_MESSAGE_NAMES.get(row['messageSubtype'], f"Unknown ({row['messageSubtype']})")
-            elif row['strategyType'] == 'PUBSUB':
-                return PUBSUB_MESSAGE_NAMES.get(row['messageSubtype'], f"Unknown ({row['messageSubtype']})")
-            else:
-                return str(row['messageSubtype'])
-        else:
-            return MESSAGE_TYPE_NAMES.get(row['messageType'], row['messageType'])
-
-    df['message_readable'] = df.apply(map_message, axis=1)
-
-
-
-    # Create scatter plot
-    fig = px.scatter(
-        df,
-        x='relative_time',
-        y='n_bytes',
-        color='message_readable',
-        title='',
-        labels={
-            'relative_time': 'Time (seconds from start)',
-            'n_bytes': 'Message Size (bytes)',
-            'message_readable': 'Message Type / Subtype'
-        },
-        hover_data={
-            'relative_time': ':.2f',
-            'n_bytes': True,
-            'message_readable': True,
-            'strategyType': True,
-            'messageType': True,
-            'messageSubtype': True
-        },
-        hover_name='message_readable'
-    )
-
-    # Layout customization
-    fig.update_layout(
-        xaxis_title='Time Elapsed (seconds)',
-        yaxis_title='Message Size (bytes)',
-        legend_title='Message Type / Subtype',
-        title={
-            'text': 'Network Messages Over Time',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
-        legend=dict(
-            orientation="v",
-            yanchor="top",
-            y=0.99,
-            xanchor="left",
-            x=1.02,
-            bgcolor='rgba(255,255,255,0.9)'
-        ),
-        plot_bgcolor='white',
-        width=1000,
-        height=600
-    )
-
-    # Marker customization
-    fig.update_traces(
-        marker=dict(
-            size=14,
-            opacity=0.8,
-            line=dict(width=1, color='DarkSlateGrey')
-        ),
-        selector=dict(mode='markers')
-    )
-
-    # Axes customization
-    fig.update_xaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
-        gridcolor='lightgray',
-        griddash='dash',
-        showgrid=True
-    )
-    fig.update_yaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
-        gridcolor='lightgray',
-        griddash='dash',
-        showgrid=True
-    )
-
-    # Add annotation
-    fig.add_annotation(
-        x=0.02, y=0.98,
-        xref="paper", yref="paper",
-        text=f"Total Messages: {len(df)}",
-        showarrow=False,
-        bgcolor="white",
-        bordercolor="black",
-        borderwidth=1
-    )
-
-    fig.show()
 
 
 def plot_scatter_message_continuous2(df: pd.DataFrame):
@@ -370,112 +226,8 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     # Show the plot
     fig.show()
 
-    # Call the function with your dataframe
+    fig.write_image("/images/messages_d_nn_12_pubsub.png", scale=3)
 
-def plot_box_inference_time(df: pd.DataFrame):
-    # Box plot without points and without outliers
-    fig = px.box(df, y='inference_time_ms',
-                 title='Inference Time Distribution',
-                 labels={'inference_time_ms': 'Inference Time (ms)'})
-
-    # Hide points and outliers
-    fig.update_traces(boxpoints=False,  # Hide individual points
-                      marker=dict(opacity=0))  # Hide outliers
-
-    fig.update_layout(
-        yaxis_title='Inference Time (ms)',
-        showlegend=False,
-        height=500
-    )
-
-    fig.show()
-
-
-def plot_violin_inference_time(df: pd.DataFrame):
-    # Enhanced violin plot
-    fig = px.violin(df, y='inference_time_ms',
-                    box=True,  # Show box plot inside
-                    points=False,  # No individual points
-                    title='<b>Inference Time Distribution</b>',
-                    color_discrete_sequence=['#1f77b4'])  # Custom color
-
-    # Calculate statistics using pandas only
-    mean_time = df['inference_time_ms'].mean()
-    median_time = df['inference_time_ms'].median()
-    std_time = df['inference_time_ms'].std()
-    min_time = df['inference_time_ms'].min()
-    max_time = df['inference_time_ms'].max()
-
-    # Enhanced layout
-    fig.update_layout(
-        yaxis_title='<b>Inference Time (ms)</b>',
-        xaxis_title='<b>Strategy Type</b>',
-        showlegend=False,
-        height=600,
-        font=dict(size=12),
-        plot_bgcolor='rgba(240,240,240,0.1)',
-        paper_bgcolor='white',
-        title_x=0.5,  # Center title
-        title_font_size=20
-    )
-
-    # Add statistical annotations
-    fig.add_hline(y=mean_time, line_dash="dash", line_color="red",
-                  annotation_text=f"Mean: {mean_time:.1f}ms",
-                  annotation_position="right")
-
-    fig.add_hline(y=median_time, line_dash="dot", line_color="green",
-                  annotation_text=f"Median: {median_time:.1f}ms",
-                  annotation_position="left")
-
-    # Add quartile lines
-    q1 = df['inference_time_ms'].quantile(0.25)
-    q3 = df['inference_time_ms'].quantile(0.75)
-    fig.add_hline(y=q1, line_dash="dash", line_color="orange", line_width=0.5)
-    fig.add_hline(y=q3, line_dash="dash", line_color="orange", line_width=0.5)
-
-    # Customize the violin and box appearance
-    fig.update_traces(
-        meanline_visible=True,  # Show mean line
-        points=False,  # No points
-        box_width=0.2,  # Width of the inner box
-        line_color='black',  # Outline color
-        fillcolor='lightblue',  # Fill color
-        opacity=0.7  # Transparency
-    )
-
-    # Add a summary annotation box
-    fig.add_annotation(
-        x=0.02, y=0.98,
-        xref="paper", yref="paper",
-        text=f"Statistics:<br>Min: {min_time:.1f}ms<br>Max: {max_time:.1f}ms<br>Std: {std_time:.1f}ms<br>IQR: {q3 - q1:.1f}ms",
-        showarrow=False,
-        bgcolor="white",
-        bordercolor="black",
-        borderwidth=1,
-        borderpad=4
-    )
-
-    fig.show()
-
-    # Alternative: Simple but elegant version
-    fig2 = px.violin(df, y='inference_time_ms',
-                     box=True,
-                     points=False,
-                     title='<b>Inference Time Distribution</b><br><i>With Statistical Summary</i>')
-
-    fig2.update_traces(meanline_visible=True,
-                       box_width=0.15,
-                       fillcolor='lightseagreen',
-                       line_color='darkblue')
-
-    fig2.update_layout(
-        yaxis_title='Inference Time (ms)',
-        showlegend=False,
-        height=500
-    )
-
-    fig2.show()
 
 def plot_scatter_inference_time(df: pd.DataFrame):
     # Create scatter plot
@@ -499,15 +251,15 @@ def plot_scatter_inference_time(df: pd.DataFrame):
                       color_continuous_scale='plasma')
 
     # Add statistical lines
-    fig2.add_hline(y=min_time, line_dash="dash", line_color="grey", annotation_text=f"Min: {min_time:.1f}ms")
-    fig2.add_hline(y=max_time, line_dash="dash", line_color="grey", annotation_text=f"Max: {max_time:.1f}ms")
-    fig2.add_hline(y=mean_time, line_dash="dash", line_color="grey", annotation_text=f"Mean: {mean_time:.1f}ms")
+    fig2.add_hline(y=min_time, line_dash="dash", line_color="grey", annotation_text=f"<b>Min: {min_time:.1f}ms<b>")
+    fig2.add_hline(y=max_time, line_dash="dash", line_color="grey", annotation_text=f"<b>Max: {max_time:.1f}ms<b>")
+    fig2.add_hline(y=mean_time, line_dash="dash", line_color="grey", annotation_text=f"<b>Mean: {mean_time:.1f}ms<b>")
 
     fig2.update_layout(
         xaxis_title='Inference ID',
         yaxis_title='Inference Time (ms)',
         title={
-            'text': 'Inference Time',
+            'text': 'Inference Time Distribution',
             'x': 0.5,
             'xanchor': 'center',
             'font': dict(family='Helvetica', size=20, color='black')
@@ -519,7 +271,7 @@ def plot_scatter_inference_time(df: pd.DataFrame):
     fig2.update_traces(
         marker=dict(
             size=22,  # Larger balls
-            opacity=0.8,
+            opacity=0.6,
             line=dict(width=1, color='white')
         ),
         selector=dict(mode='markers')
@@ -544,21 +296,168 @@ def plot_scatter_inference_time(df: pd.DataFrame):
 
     fig2.show()
 
+    fig2.write_image("/images/inference_time_d_nn_12_pubsub.png", scale=3)
+
+
+
+import pandas as pd
+from datetime import datetime
+
+
+def analyze_message_metrics(df):
+    """
+       Analyze messaging metrics from the DataFrame with standard column names
+       """
+
+    # Basic validation
+    required_cols = ['timestamp', 'messageType', 'strategyType', 'messageSubtype', 'n_bytes']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        print(f"⚠️  Missing columns: {missing_cols}")
+        return None
+
+    # Create a copy to avoid modifying original data
+    df_analysis = df.copy()
+
+    # Convert timestamp if needed (assuming Unix timestamp)
+    if pd.api.types.is_numeric_dtype(df_analysis['timestamp']):
+        df_analysis['datetime'] = pd.to_datetime(df_analysis['timestamp'], unit='s')
+    else:
+        df_analysis['datetime'] = pd.to_datetime(df_analysis['timestamp'])
+
+    # Calculate time range and duration
+    start_time = df_analysis['datetime'].min()
+    end_time = df_analysis['datetime'].max()
+    duration_seconds = (end_time - start_time).total_seconds()
+
+    # Basic metrics
+    total_messages = len(df_analysis)
+    total_bytes = df_analysis['n_bytes'].sum()
+
+    # Message type analysis
+    message_type_counts = df_analysis['messageType'].value_counts()
+    message_type_percentages = (message_type_counts / total_messages * 100)
+
+    # Strategy type analysis
+    strategy_counts = df_analysis['strategyType'].value_counts()
+    strategy_percentages = (strategy_counts / total_messages * 100)
+
+    # Subtype analysis
+    subtype_messages = df_analysis[df_analysis['messageSubtype'].notna()]
+    if not subtype_messages.empty:
+        subtype_counts = subtype_messages['messageSubtype'].value_counts()
+        subtype_percentages = (subtype_counts / len(subtype_messages) * 100)
+    else:
+        subtype_counts = pd.Series()
+        subtype_percentages = pd.Series()
+
+    # Bytes analysis
+    bytes_per_second_total = total_bytes / duration_seconds if duration_seconds > 0 else 0
+    bytes_by_message_type = df_analysis.groupby('messageType')['n_bytes'].agg(['sum', 'mean', 'count'])
+    bytes_by_message_type['bytes_per_second'] = bytes_by_message_type['sum'] / duration_seconds
+
+    # Routing messages analysis
+    routing_keywords = ['ROUTING', 'DISCOVERY', 'REQUEST', 'RESPONSE', 'UPDATE', 'PARENT']
+    routing_messages = df_analysis[
+        df_analysis['messageType'].str.contains('|'.join(routing_keywords), case=False, na=False)]
+    total_routing_messages = len(routing_messages)
+    routing_percentage = (total_routing_messages / total_messages * 100)
+    routing_bytes = routing_messages['n_bytes'].sum()
+
+    # Data messages analysis
+    data_messages = df_analysis[~df_analysis.index.isin(routing_messages.index)]
+    total_data_messages = len(data_messages)
+    data_percentage = (total_data_messages / total_messages * 100)
+    data_bytes = data_messages['n_bytes'].sum()
+
+    # Print comprehensive report with proper formatting
+    print("=" * 60)
+    print("MESSAGING METRICS ANALYSIS")
+    print("=" * 60)
+
+    print(f"\n BASIC METRICS:")
+    print(f"• Total Messages: {total_messages:,}")
+    print(f"• Total Bytes: {total_bytes:,} bytes")
+    print(f"• Time Range: {start_time} to {end_time}")
+    print(f"• Duration: {duration_seconds/60:.2f} minutes")
+    print(f"• Average Bytes/Second: {bytes_per_second_total:.2f} B/s")
+
+    print(f"\n ROUTING vs DATA MESSAGES:")
+    print(f"• Routing Messages: {total_routing_messages:,} ({routing_percentage:.2f}%)")
+    print(f"• Data Messages: {total_data_messages:,} ({data_percentage:.2f}%)")
+    print(f"• Routing Bytes: {routing_bytes:,} bytes")
+    print(f"• Data Bytes: {data_bytes:,} bytes")
+    print(
+        f"• Routing Bytes/Second: {routing_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Routing Bytes/Second: N/A")
+    print(
+        f"• Data Bytes/Second: {data_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Data Bytes/Second: N/A")
+
+    print(f"\n MESSAGE TYPE BREAKDOWN:")
+    for msg_type, count in message_type_counts.items():
+        percentage = message_type_percentages[msg_type]
+        bytes_sum = bytes_by_message_type.loc[msg_type, 'sum'] if msg_type in bytes_by_message_type.index else 0
+        avg_bytes = bytes_by_message_type.loc[msg_type, 'mean'] if msg_type in bytes_by_message_type.index else 0
+        print(f"• {msg_type}: {count:,} messages ({percentage:.2f}%) - {bytes_sum:,} bytes ({avg_bytes:.1f} avg/msg)")
+
+    print(f"\n STRATEGY TYPE DISTRIBUTION:")
+    for strategy, count in strategy_counts.items():
+        percentage = strategy_percentages[strategy]
+        strategy_name = strategy if pd.notna(strategy) else 'None'
+        print(f"• {strategy_name}: {count:,} messages ({percentage:.2f}%)")
+
+    if not subtype_counts.empty:
+        print(f"\n MESSAGE SUBTYPE ANALYSIS:")
+        for subtype, count in subtype_counts.items():
+            percentage = subtype_percentages[subtype]
+            subtype_name = subtype if pd.notna(subtype) else 'None'
+            print(f"• {subtype_name}: {count:,} messages ({percentage:.2f}%)")
+
+    print(f"\n BYTES ANALYSIS BY MESSAGE TYPE:")
+    for msg_type in bytes_by_message_type.index:
+        data = bytes_by_message_type.loc[msg_type]
+        print(
+            f"• {msg_type}: {data['sum']:,} total bytes, {data['mean']:.1f} avg bytes/msg, {data['bytes_per_second']:.2f} B/s")
+
+    # Return structured results with raw numbers (no rounding)
+    results = {
+        'total_messages': total_messages,
+        'total_bytes': total_bytes,
+        'duration_seconds': duration_seconds,
+        'bytes_per_second': bytes_per_second_total,
+        'message_type_breakdown': message_type_counts.to_dict(),
+        'message_type_percentages': {k: float(v) for k, v in message_type_percentages.items()},
+        'strategy_breakdown': strategy_counts.to_dict(),
+        'strategy_percentages': {k: float(v) for k, v in strategy_percentages.items()},
+        'routing_messages': total_routing_messages,
+        'data_messages': total_data_messages,
+        'routing_percentage': float(routing_percentage),
+        'data_percentage': float(data_percentage),
+        'bytes_by_message_type': bytes_by_message_type.to_dict(),
+        'time_range': {'start': start_time, 'end': end_time}
+    }
+
+    return results
+
+
+def create_message_metrics_visualizations(df, metrics):
+
+
 if __name__ == '__main__':
     app_init_df,app_inference_df,message_continuous_df = get_dfs()
 
-    with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
+    #with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
     #      print(app_init_df)
-          print(app_inference_df)
+    #      print(app_inference_df)
     #      print(message_continuous_df)
 
     clean_df(message_continuous_df)
 
-    #plot_scatter_message_continuous2(message_continuous_df)
+    results = analyze_message_metrics(message_continuous_df)
 
-    #plot_box_inference_time(app_inference_df)
-    #plot_violin_inference_time(app_inference_df)
-    plot_scatter_inference_time(app_inference_df)
+    create_message_metrics_visualizations(message_continuous_df,results)
+
+    #plot_scatter_message_continuous2(message_continuous_df)
+    #plot_scatter_inference_time(app_inference_df)
 
 
 

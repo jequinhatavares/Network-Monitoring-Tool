@@ -212,8 +212,6 @@ def plot_bar_states_mean_pdevice(df):
     return figures
 
 
-
-
 def stacked_bar_plot_integration_time(df: pd.DataFrame):
     states = ['init_time', 'search_time', 'join_time']
     state_labels = {

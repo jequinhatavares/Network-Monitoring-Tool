@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 def box_plot_with_3_devices_by_state(df: pd.DataFrame):
     states = ['init_time', 'search_time', 'join_time']
     state_labels = {
@@ -363,3 +366,250 @@ def plot_scatter_message_continuous_with_annotations(df: pd.DataFrame):
 
     # Show the plot
     fig.show()
+
+
+def plot_scatter_message_readable(df: pd.DataFrame):
+    # Convert timestamp to relative seconds (starting from 0)
+    first_timestamp = df['timestamp'].iloc[0]
+    df['relative_time'] = df['timestamp'] - first_timestamp
+
+    # Human-readable main message types
+    MESSAGE_TYPE_NAMES = {
+        'DATA': 'Data Message',
+        'MIDDLEWARE': 'Middleware Message',
+        'CONTROL': 'Control Message',  # example if you have other types
+        # Add other main types if needed
+    }
+
+    # Mapping of neural network message subtypes
+    NEURAL_NETWORK_MESSAGE_NAMES = {
+        0: "NN Assign Computation",
+        1: "NN Assign Input",
+        2: "NN Assign Output",
+        3: "NN Assign Output Targets",
+        4: "NN Neuron Output",
+        5: "NN Forward",
+        6: "NN NACK",
+        7: "NN ACK",
+        8: "NN Worker Registration",
+        9: "NN Input Registration",
+        10: "NN Output Registration",
+    }
+
+    # Mapping of PUBSUB (middleware) message subtypes
+    PUBSUB_MESSAGE_NAMES = {
+        0: "PubSub Subscribe",
+        1: "PubSub Unsubscribe",
+        2: "PubSub Advertise",
+        3: "PubSub Unadvertise",
+        4: "PubSub Node Topics Update",
+        5: "PubSub Network Topics Update"
+    }
+
+    # Map to human-readable names
+    def map_message(row):
+        if row['messageType'] in ['DATA', 'MIDDLEWARE']:
+            if row['strategyType'] == 'NEURAL_NETWORK':
+                return NEURAL_NETWORK_MESSAGE_NAMES.get(row['messageSubtype'], f"Unknown ({row['messageSubtype']})")
+            elif row['strategyType'] == 'PUBSUB':
+                return PUBSUB_MESSAGE_NAMES.get(row['messageSubtype'], f"Unknown ({row['messageSubtype']})")
+            else:
+                return str(row['messageSubtype'])
+        else:
+            return MESSAGE_TYPE_NAMES.get(row['messageType'], row['messageType'])
+
+    df['message_readable'] = df.apply(map_message, axis=1)
+
+
+
+    # Create scatter plot
+    fig = px.scatter(
+        df,
+        x='relative_time',
+        y='n_bytes',
+        color='message_readable',
+        title='',
+        labels={
+            'relative_time': 'Time (seconds from start)',
+            'n_bytes': 'Message Size (bytes)',
+            'message_readable': 'Message Type / Subtype'
+        },
+        hover_data={
+            'relative_time': ':.2f',
+            'n_bytes': True,
+            'message_readable': True,
+            'strategyType': True,
+            'messageType': True,
+            'messageSubtype': True
+        },
+        hover_name='message_readable'
+    )
+
+    # Layout customization
+    fig.update_layout(
+        xaxis_title='Time Elapsed (seconds)',
+        yaxis_title='Message Size (bytes)',
+        legend_title='Message Type / Subtype',
+        title={
+            'text': 'Network Messages Over Time',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+        legend=dict(
+            orientation="v",
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=1.02,
+            bgcolor='rgba(255,255,255,0.9)'
+        ),
+        plot_bgcolor='white',
+        width=1000,
+        height=600
+    )
+
+    # Marker customization
+    fig.update_traces(
+        marker=dict(
+            size=14,
+            opacity=0.8,
+            line=dict(width=1, color='DarkSlateGrey')
+        ),
+        selector=dict(mode='markers')
+    )
+
+    # Axes customization
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=14),
+        tickfont=dict(family='Helvetica', size=12),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+
+    # Add annotation
+    fig.add_annotation(
+        x=0.02, y=0.98,
+        xref="paper", yref="paper",
+        text=f"Total Messages: {len(df)}",
+        showarrow=False,
+        bgcolor="white",
+        bordercolor="black",
+        borderwidth=1
+    )
+
+    fig.show()
+
+def plot_box_inference_time(df: pd.DataFrame):
+    # Box plot without points and without outliers
+    fig = px.box(df, y='inference_time_ms',
+                 title='Inference Time Distribution',
+                 labels={'inference_time_ms': 'Inference Time (ms)'})
+
+    # Hide points and outliers
+    fig.update_traces(boxpoints=False,  # Hide individual points
+                      marker=dict(opacity=0))  # Hide outliers
+
+    fig.update_layout(
+        yaxis_title='Inference Time (ms)',
+        showlegend=False,
+        height=500
+    )
+
+    fig.show()
+
+
+def plot_violin_inference_time(df: pd.DataFrame):
+    # Enhanced violin plot
+    fig = px.violin(df, y='inference_time_ms',
+                    box=True,  # Show box plot inside
+                    points=False,  # No individual points
+                    title='<b>Inference Time Distribution</b>',
+                    color_discrete_sequence=['#1f77b4'])  # Custom color
+
+    # Calculate statistics using pandas only
+    mean_time = df['inference_time_ms'].mean()
+    median_time = df['inference_time_ms'].median()
+    std_time = df['inference_time_ms'].std()
+    min_time = df['inference_time_ms'].min()
+    max_time = df['inference_time_ms'].max()
+
+    # Enhanced layout
+    fig.update_layout(
+        yaxis_title='<b>Inference Time (ms)</b>',
+        xaxis_title='<b>Strategy Type</b>',
+        showlegend=False,
+        height=600,
+        font=dict(size=12),
+        plot_bgcolor='rgba(240,240,240,0.1)',
+        paper_bgcolor='white',
+        title_x=0.5,  # Center title
+        title_font_size=20
+    )
+
+    # Add statistical annotations
+    fig.add_hline(y=mean_time, line_dash="dash", line_color="red",
+                  annotation_text=f"Mean: {mean_time:.1f}ms",
+                  annotation_position="right")
+
+    fig.add_hline(y=median_time, line_dash="dot", line_color="green",
+                  annotation_text=f"Median: {median_time:.1f}ms",
+                  annotation_position="left")
+
+    # Add quartile lines
+    q1 = df['inference_time_ms'].quantile(0.25)
+    q3 = df['inference_time_ms'].quantile(0.75)
+    fig.add_hline(y=q1, line_dash="dash", line_color="orange", line_width=0.5)
+    fig.add_hline(y=q3, line_dash="dash", line_color="orange", line_width=0.5)
+
+    # Customize the violin and box appearance
+    fig.update_traces(
+        meanline_visible=True,  # Show mean line
+        points=False,  # No points
+        box_width=0.2,  # Width of the inner box
+        line_color='black',  # Outline color
+        fillcolor='lightblue',  # Fill color
+        opacity=0.7  # Transparency
+    )
+
+    # Add a summary annotation box
+    fig.add_annotation(
+        x=0.02, y=0.98,
+        xref="paper", yref="paper",
+        text=f"Statistics:<br>Min: {min_time:.1f}ms<br>Max: {max_time:.1f}ms<br>Std: {std_time:.1f}ms<br>IQR: {q3 - q1:.1f}ms",
+        showarrow=False,
+        bgcolor="white",
+        bordercolor="black",
+        borderwidth=1,
+        borderpad=4
+    )
+
+    fig.show()
+
+    # Alternative: Simple but elegant version
+    fig2 = px.violin(df, y='inference_time_ms',
+                     box=True,
+                     points=False,
+                     title='<b>Inference Time Distribution</b><br><i>With Statistical Summary</i>')
+
+    fig2.update_traces(meanline_visible=True,
+                       box_width=0.15,
+                       fillcolor='lightseagreen',
+                       line_color='darkblue')
+
+    fig2.update_layout(
+        yaxis_title='Inference Time (ms)',
+        showlegend=False,
+        height=500
+    )
+
+    fig2.show()
+
