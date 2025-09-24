@@ -2,7 +2,6 @@ import os
 
 
 from app_common import *
-from plotly.colors import qualitative
 
 
 def plot_scatter_message_continuous2(df: pd.DataFrame):
@@ -60,19 +59,12 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
         'None',
         'Worker Registration',
         'Input Registration',
-        'Output Registration',
 
         "Parent List Advertisement",
         "Metrics Report",
         "Node Update",
     ]
 
-    # Get the default Plotly colors and extend with additional colors
-    plotly_colors = qualitative.Plotly
-    additional_colors = qualitative.D3[5] + qualitative.D3[2] + qualitative.D3[3] + qualitative.D3[7] + qualitative.Dark24[22] + qualitative.Dark24[23]
-
-    # Combine and remove duplicates while preserving order
-    extended_colors = list(dict.fromkeys(plotly_colors + additional_colors))
 
     # Gather the data that is going to be displayed with the types or subtypes
     def get_full_message_name(row):
@@ -171,7 +163,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     fig.update_traces(
         marker=dict(
             size=14,  # Larger balls
-            opacity=0.8,
+            opacity=0.9,
             line=dict(width=1, color='DarkSlateGrey')
         ),
         selector=dict(mode='markers')
@@ -205,7 +197,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
 
 
 if __name__ == '__main__':
-    show_plots = True
+    show_plots = False
 
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_topology", 2)
 

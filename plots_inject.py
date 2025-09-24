@@ -93,6 +93,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     fig = px.scatter(df,
                      x='relative_time',
                      y='n_bytes',
+                     color_discrete_sequence=extended_colors,
                      color='messageType_readable',
                      category_orders={"messageType_readable": category_order},
                      labels={

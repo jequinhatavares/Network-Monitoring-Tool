@@ -7,6 +7,8 @@ import json
 import random
 import plotly.graph_objects as go
 
+from plotly.colors import qualitative
+
 
 def get_dfs(directory:str, n:int):
     runs = []
@@ -37,6 +39,9 @@ def get_dfs(directory:str, n:int):
     # Filter directly using the time difference
     start_time = message_continuous_df['timestamp'].min()
     message_continuous_df = message_continuous_df[message_continuous_df['timestamp'] - start_time <= 796.9556]
+
+    # Remove MONITORING_MESSAGE rows
+    message_continuous_df = message_continuous_df[message_continuous_df['messageType'] != 'MONITORING_MESSAGE']
 
     return app_init_df, app_inference_df, message_continuous_df
 
@@ -398,3 +403,19 @@ def create_four_category_pie(df, save_path:str, show_plot=False):
                     # width=1000,  # width in pixels
                     # height=600,  # height in pixels
                     scale=4)
+
+
+
+# Get the default Plotly colors and extend with additional colors
+plotly_colors = qualitative.Plotly
+
+additional_colors = [
+    qualitative.D3[5],
+    qualitative.D3[2],
+    qualitative.Dark24[23],
+    qualitative.D3[7],
+    qualitative.D3[8],
+]
+
+# Combine and remove duplicates while preserving order
+extended_colors = list(dict.fromkeys(plotly_colors + additional_colors))
