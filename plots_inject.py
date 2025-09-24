@@ -9,7 +9,7 @@ import plotly.graph_objects as go
 from app_common import *
 
 
-def plot_scatter_message_continuous2(df: pd.DataFrame):
+def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
     # Convert timestamp to relative seconds (starting from 0)
     first_timestamp = df['timestamp'].iloc[0]
     df['relative_time'] = df['timestamp'] - first_timestamp
@@ -164,7 +164,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     fig.update_traces(
         marker=dict(
             size=14,  # Larger balls
-            opacity=0.8,
+            opacity=0.9,
             line=dict(width=1, color='DarkSlateGrey')
         ),
         selector=dict(mode='markers')
@@ -188,9 +188,10 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     )
 
     # Show the plot
-    fig.show()
+    if (show_plot):
+        fig.show()
 
-    fig.write_image("images/messages_d_nn_12_topology.png",
+    fig.write_image("images/nn_inject/messages_d_nn_12_inject.png",
                     width=1000,
                     height=600,
                     scale=4)
@@ -201,16 +202,16 @@ if __name__ == '__main__':
     show_plots = True
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/centralized_nn_12_strategy_inject",0)
 
-    with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
-          print(app_init_df)
-          print(app_inference_df)
-          print(message_continuous_df)
+    # with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
+    #       print(app_init_df)
+    #       print(app_inference_df)
+    #       print(message_continuous_df)
 
     clean_df(message_continuous_df)
 
     results = analyze_message_metrics(message_continuous_df)
 
-    plot_scatter_message_continuous2(message_continuous_df)
+    plot_scatter_message_continuous2(message_continuous_df,show_plots)
 
     plot_scatter_inference_time(app_inference_df, "images/nn_inject/inference_time_d_nn_12_inject.png", show_plots)
 

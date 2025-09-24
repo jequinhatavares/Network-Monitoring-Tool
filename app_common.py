@@ -38,7 +38,7 @@ def get_dfs(directory:str, n:int):
 
     # Filter directly using the time difference
     start_time = message_continuous_df['timestamp'].min()
-    message_continuous_df = message_continuous_df[message_continuous_df['timestamp'] - start_time <= 796.9556]
+    message_continuous_df = message_continuous_df[message_continuous_df['timestamp'] - start_time <= 607.61]
 
     # Remove MONITORING_MESSAGE rows
     message_continuous_df = message_continuous_df[message_continuous_df['messageType'] != 'MONITORING_MESSAGE']
@@ -134,7 +134,7 @@ def analyze_message_metrics(df):
     required_cols = ['timestamp', 'messageType', 'strategyType', 'messageSubtype', 'n_bytes']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
-        print(f"⚠️  Missing columns: {missing_cols}")
+        print(f"  Missing columns: {missing_cols}")
         return None
 
     # Create a copy to avoid modifying original data
@@ -179,17 +179,24 @@ def analyze_message_metrics(df):
 
     # Routing messages analysis
     routing_keywords = ['ROUTING']
-    routing_messages = df_analysis[
-        df_analysis['messageType'].str.contains('|'.join(routing_keywords), case=False, na=False)]
+    routing_messages = df_analysis[df_analysis['messageType'].str.contains('|'.join(routing_keywords), case=False, na=False)]
     total_routing_messages = len(routing_messages)
     routing_percentage = (total_routing_messages / total_messages * 100)
     routing_bytes = routing_messages['n_bytes'].sum()
 
     # Data messages analysis
-    data_messages = df_analysis[~df_analysis.index.isin(routing_messages.index)]
+    data_keywords = ['DATA']
+    data_messages = df_analysis[df_analysis['messageType'].str.contains('|'.join(data_keywords), case=False, na=False)]
     total_data_messages = len(data_messages)
     data_percentage = (total_data_messages / total_messages * 100)
     data_bytes = data_messages['n_bytes'].sum()
+
+    # Middleware messages analysis
+    middleware_keywords = ['MIDDLEWARE']
+    middleware_messages = df_analysis[df_analysis['messageType'].str.contains('|'.join(middleware_keywords), case=False, na=False)]
+    total_middleware_messages = len(middleware_messages)
+    middleware_percentage = (total_middleware_messages / total_messages * 100)
+    middleware_bytes = data_messages['n_bytes'].sum()
 
     # Print comprehensive report with proper formatting
     print("=" * 60)
@@ -203,11 +210,13 @@ def analyze_message_metrics(df):
     print(f"• Duration: {duration_seconds / 60:.2f} minutes")
     print(f"• Average Bytes/Second: {bytes_per_second_total:.2f} B/s")
 
-    print(f"\n ROUTING vs DATA MESSAGES:")
+    print(f"\n COMPREHENSIVE MESSAGES:")
     print(f"• Routing Messages: {total_routing_messages:,} ({routing_percentage:.2f}%)")
     print(f"• Data Messages: {total_data_messages:,} ({data_percentage:.2f}%)")
+    print(f"• Middleware Messages: {total_middleware_messages:,} ({middleware_percentage:.2f}%)")
     print(f"• Routing Bytes: {routing_bytes:,} bytes")
     print(f"• Data Bytes: {data_bytes:,} bytes")
+    print(f"• Middleware Bytes: {middleware_bytes:,} bytes")
     print(
         f"• Routing Bytes/Second: {routing_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Routing Bytes/Second: N/A")
     print(
@@ -271,7 +280,7 @@ def create_throughput_bar_plot(df, metrics,save_path:str, show_plot=False):
 
         if 'ROUTING' in message_type:
             return 'Routing Messages'  # Includes all routing (partial, full, other)
-        elif any(keyword in message_type for keyword in ['MIDDLEWARE', 'SERVICE', 'INTERNAL']):
+        elif 'MIDDLEWARE' in message_type:
             return 'Middleware Messages'
         elif 'DATA' in message_type:
             return 'Data Messages'
@@ -348,7 +357,7 @@ def create_four_category_pie(df, save_path:str, show_plot=False):
     def categorize_message_strict(message_type):
         message_type = str(message_type).upper()
 
-        if any(keyword in message_type for keyword in ['MIDDLEWARE']):
+        if 'MIDDLEWARE' in message_type:
             return 'Middleware'
         elif 'DATA' in message_type:
             return 'Data'

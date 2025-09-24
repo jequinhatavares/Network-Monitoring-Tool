@@ -137,9 +137,9 @@ def plot_bar_states_mean_pdevice(df):
         "join_time": "Join"
     }
     state_colors = {
-        'init_time': "#d7377e",  # Plotly blue
-        'search_time': "#64d3f6",  # Plotly orange
-        'join_time': "#b8f193"  # Plotly green
+        'init_time': px.colors.qualitative.Plotly[0],  # Plotly blue
+        'search_time': px.colors.qualitative.Plotly[1],  # Plotly orange
+        'join_time': px.colors.qualitative.Plotly[2]  # Plotly green
     }
 
 
@@ -209,6 +209,20 @@ def plot_bar_states_mean_pdevice(df):
 
         figures[device] = fig
 
+    figures["ESP8266"].write_image(
+        "images/core_network/init_states_8266.png",
+        scale=2  # multiplies the base resolution
+    )
+    figures["ESP32"].write_image(
+        "images/core_network/init_states_32.png",
+        scale=2  # multiplies the base resolution
+    )
+    figures["RPI"].write_image(
+        "images/core_network/init_states_rpi.png",
+        scale=2  # multiplies the base resolution
+    )
+
+    figures["ESP8266"].show()
     return figures
 
 
@@ -331,6 +345,11 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
         )
     fig.show()
 
+    fig.write_image(
+        "images/core_network/init_device_comparison.png",
+        scale=2  # multiplies the base resolution
+    )
+
 def parent_recovery_bar_plot(df: pd.DataFrame):
     # Calculate mean recovery time by device type
     # Convert milliseconds to seconds
@@ -393,7 +412,11 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
         gridcolor='lightgray'
     )
 
-    fig.show()
+    #fig.show()
+    fig.write_image(
+        "images/core_network/parent_recovery_comparison.png",
+        scale=2  # multiplies the base resolution
+    )
 
 
 def plot_mean_messages(df: pd.DataFrame):
@@ -496,6 +519,15 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
         'FULL_ROUTING_TABLE_UPDATE': 'Full Routing Update'
     }
 
+    # Define fixed order for categories
+    category_order = [
+        'Monitoring Message',
+        'Parent Discovery Request',
+        'Child Registration Request',
+        'Partial Routing Update',
+        'Full Routing Update',
+    ]
+
     df['messageType_readable'] = df['messageType'].map(message_type_mapping)
 
     # Create the scatter plot
@@ -504,6 +536,7 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
                      y='n_bytes',
                      color='messageType_readable',
                      title='',
+                     category_orders={"messageType_readable": category_order},
                      labels={
                          'relative_time': 'Time (seconds from start)',
                          'n_bytes': 'Message Size (bytes)',
@@ -545,7 +578,7 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
     fig.update_traces(
         marker=dict(
             size=14,  # Larger balls
-            opacity=0.8,
+            opacity=0.9,
             line=dict(width=1, color='DarkSlateGrey')
         ),
         selector=dict(mode='markers')
@@ -582,6 +615,12 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
 
     # Show the plot
     fig.show()
+    fig.write_image(
+        "images/core_network/messages_root.png",
+        width=1000,
+        height=600,
+        scale=4  # multiplies the base resolution
+    )
 
 
 if __name__ == '__main__':
@@ -599,9 +638,9 @@ if __name__ == '__main__':
     # figures["ESP8266"].show()
     # figures["ESP32"].show()
     # figures["RPI"].show()
-    # stacked_bar_plot_integration_time(join_times_df)
+    stacked_bar_plot_integration_time(join_times_df)
     #
-    # parent_recovery_bar_plot(parent_recovery_df)
+    parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 
