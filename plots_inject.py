@@ -211,8 +211,8 @@ if __name__ == '__main__':
 
     plot_scatter_message_continuous2(message_continuous_df)
 
-    plot_scatter_inference_time(app_inference_df,"images/inference_time_d_nn_12_topology.png",show_plots)
+    plot_scatter_inference_time(app_inference_df, "images/nn_inject/inference_time_d_nn_12_inject.png", show_plots)
 
-    create_throughput_bar_plot(message_continuous_df, results,"images/throughput_c_nn_12_inject.png",show_plots)
+    create_throughput_bar_plot(message_continuous_df, results, "images/nn_inject/throughput_c_nn_12_inject.png", show_plots)
 
-    create_four_category_pie(message_continuous_df,"images/messages_pie_c_nn_12_inject.png",show_plots)
+    create_four_category_pie(message_continuous_df, "images/nn_inject/messages_pie_c_nn_12_inject.png", show_plots)

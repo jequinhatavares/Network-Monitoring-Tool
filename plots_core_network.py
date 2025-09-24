@@ -595,13 +595,13 @@ if __name__ == '__main__':
 
     figures = plot_bar_states_mean_pdevice(join_times_df)
 
-    # Show per device
-    figures["ESP8266"].show()
-    figures["ESP32"].show()
-    figures["RPI"].show()
-    stacked_bar_plot_integration_time(join_times_df)
-
-    parent_recovery_bar_plot(parent_recovery_df)
+    # # Show per device
+    # figures["ESP8266"].show()
+    # figures["ESP32"].show()
+    # figures["RPI"].show()
+    # stacked_bar_plot_integration_time(join_times_df)
+    #
+    # parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 

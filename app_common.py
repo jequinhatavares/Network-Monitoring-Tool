@@ -26,12 +26,17 @@ def get_dfs(directory:str, n:int):
         {'strategy_type': 'str', 'inference_id': 'int32', 'inference_time_ms': 'int32', 'nack_count': 'int32'})
 
     runs = []
+
     with open(f'{directory}/run-continuous-messages-{n}.json', 'r') as f:
         runs += json.load(f)
     message_continuous_df = pd.DataFrame(runs)
     message_continuous_df = message_continuous_df.astype(
         {'timestamp': 'float64', 'messageType': 'str', 'strategyType': 'str', 'messageSubtype': 'str',
          'n_bytes': 'int32'})
+
+    # Filter directly using the time difference
+    start_time = message_continuous_df['timestamp'].min()
+    message_continuous_df = message_continuous_df[message_continuous_df['timestamp'] - start_time <= 796.9556]
 
     return app_init_df, app_inference_df, message_continuous_df
 

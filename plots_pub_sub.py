@@ -181,7 +181,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
     )
 
     # Show the plot
-    #fig.show()
+    fig.show()
 
     fig.write_image(
         "images/messages_d_nn_12_pubsub.png",
@@ -208,9 +208,9 @@ if __name__ == '__main__':
 
     plot_scatter_message_continuous2(message_continuous_df)
 
-    plot_scatter_inference_time(app_inference_df, "images/inference_time_d_nn_12_pubsub.png", show_plots)
+    plot_scatter_inference_time(app_inference_df, "images/nn_pubsub/inference_time_d_nn_12_pubsub.png", show_plots)
 
-    create_throughput_bar_plot(message_continuous_df, results, "images/throughput_d_nn_12_pubsub.png", show_plots)
+    create_throughput_bar_plot(message_continuous_df, results, "images/nn_pubsub/throughput_d_nn_12_pubsub.png", show_plots)
 
-    create_four_category_pie(message_continuous_df, "images/messages_pie_d_nn_12_pubsub.png", show_plots)
+    create_four_category_pie(message_continuous_df, "images/nn_pubsub/messages_pie_d_nn_12_pubsub.png", show_plots)
 

@@ -2,7 +2,7 @@ import os
 
 
 from app_common import *
-
+from plotly.colors import qualitative
 
 
 def plot_scatter_message_continuous2(df: pd.DataFrame):
@@ -67,7 +67,14 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
         "Node Update",
     ]
 
-    # Gather the data that is going to be displayed with the types or sub types
+    # Get the default Plotly colors and extend with additional colors
+    plotly_colors = qualitative.Plotly
+    additional_colors = qualitative.D3[5] + qualitative.D3[2] + qualitative.D3[3] + qualitative.D3[7] + qualitative.Dark24[22] + qualitative.Dark24[23]
+
+    # Combine and remove duplicates while preserving order
+    extended_colors = list(dict.fromkeys(plotly_colors + additional_colors))
+
+    # Gather the data that is going to be displayed with the types or subtypes
     def get_full_message_name(row):
         message_type = row['messageType']
         subtype = row.get('messageSubtype', None)
@@ -94,6 +101,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
                      x='relative_time',
                      y='n_bytes',
                      color='messageType_readable',
+                     color_discrete_sequence=extended_colors,
                      category_orders={"messageType_readable": category_order},
                      labels={
                          'relative_time': 'Time (seconds from start)',
@@ -106,7 +114,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
                          'messageType': True,
                          'messageSubtype': True
                      },
-                     hover_name='messageType_readable', )
+                     hover_name='messageType_readable',)
 
     # Update traces with legendrank
     for trace in fig.data:
@@ -198,6 +206,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame):
 
 if __name__ == '__main__':
     show_plots = True
+
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_topology", 2)
 
     with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', None,
@@ -212,9 +221,9 @@ if __name__ == '__main__':
 
     plot_scatter_message_continuous2(message_continuous_df)
 
-    plot_scatter_inference_time(app_inference_df, "images/inference_time_d_nn_12_topology.png", show_plots)
+    plot_scatter_inference_time(app_inference_df, "images/nn_topology/inference_time_d_nn_12_topology.png", show_plots)
 
-    create_throughput_bar_plot(message_continuous_df, results, "images/throughput_d_nn_12_topology.png", show_plots)
+    create_throughput_bar_plot(message_continuous_df, results, "images/nn_topology/throughput_d_nn_12_topology.png", show_plots)
 
-    create_four_category_pie(message_continuous_df, "images/messages_pie_d_nn_12_topology.png", show_plots)
+    create_four_category_pie(message_continuous_df, "images/nn_topology/messages_pie_d_nn_12_topology.png", show_plots)
 
