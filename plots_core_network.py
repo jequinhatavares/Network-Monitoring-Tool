@@ -298,7 +298,7 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
     # Clean layout
     fig.update_layout(
         title={
-            'text': 'Network Integration Time Breakdown by Device',
+            'text': 'Network Integration Time by Device',
             'x': 0.5,
             'xanchor': 'center',
             'font': dict(family='Helvetica', size=20, color='black')

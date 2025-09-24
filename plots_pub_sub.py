@@ -193,7 +193,6 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
     )
 
 
-
 if __name__ == '__main__':
     show_plots = True
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_pub_sub", 0)
