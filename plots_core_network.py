@@ -8,6 +8,7 @@ import plotly.colors as pc
 
 
 import plotly.graph_objects as go
+from networkx.algorithms.bipartite.basic import color
 from plotly.subplots import make_subplots
 
 # Device color mapping
@@ -201,10 +202,10 @@ def plot_bar_states_mean_pdevice(df):
         )
 
         # Specifically update axis tick fonts
-        fig.update_xaxes(title_font=dict(family='Helvetica', size=14),
-                         tickfont=dict(family='Helvetica', size=12) )
-        fig.update_yaxes(title_font=dict(family='Helvetica', size=14),
-                         tickfont=dict(family='Helvetica', size=12),
+        fig.update_xaxes(title_font=dict(family='Helvetica', size=16),
+                         tickfont=dict(family='Helvetica', size=14,color="Black") )
+        fig.update_yaxes(title_font=dict(family='Helvetica', size=16,color="Black"),
+                         tickfont=dict(family='Helvetica', size=14,color="Black"),
                          showgrid=True, gridcolor='lightgray', gridwidth=1,)
 
         figures[device] = fig
@@ -311,7 +312,7 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
         paper_bgcolor='white',
         margin=dict(t=100, b=60, l=60, r=60),  # Increased top margin for higher annotations
         legend=dict(
-            font=dict(family='Helvetica', size=12),
+            font=dict(family='Helvetica', size=16),
             orientation='h',
             yanchor='bottom',
             y=1.02,
@@ -322,13 +323,13 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
 
     # Clean axes
     fig.update_xaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12)
+        title_font=dict(family='Helvetica', size=16,color="Black"),
+        tickfont=dict(family='Helvetica', size=14,color="Black")
     )
 
     fig.update_yaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16,color="Black"),
+        tickfont=dict(family='Helvetica', size=14,color="Black"),
         gridcolor='lightgray'
     )
 
@@ -340,14 +341,14 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
             y=total_time * 1.03,  # Increased from 1.02 to 1.08 - moved higher
             text=f'Total: {total_time:.2f}s',
             showarrow=False,
-            font=dict(family='Helvetica', size=12, weight='bold', color='black'),
+            font=dict(family='Helvetica', size=16, weight='bold', color='black'),
             yshift=5  # Additional shift for extra spacing
         )
     fig.show()
 
     fig.write_image(
         "images/core_network/init_device_comparison.png",
-        scale=2  # multiplies the base resolution
+        scale=3  # multiplies the base resolution
     )
 
 def parent_recovery_bar_plot(df: pd.DataFrame):
@@ -402,13 +403,13 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
 
     # Clean axes
     fig.update_xaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12)
+        title_font=dict(family='Helvetica', size=16,color='black'),
+        tickfont=dict(family='Helvetica', size=14,color="Black")
     )
 
     fig.update_yaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16,color='black'),
+        tickfont=dict(family='Helvetica', size=14,color="Black"),
         gridcolor='lightgray'
     )
 
@@ -555,7 +556,7 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
         yaxis_title='Message Size (bytes)',
         legend_title='Message Types',
         title={
-            'text': 'Network Message Analysis: Received Messages Over Time',
+            'text': 'Received Messages Over Time',
             'x': 0.5,
             'xanchor': 'center',
             'font': dict(family='Helvetica', size=20, color='black')
@@ -577,7 +578,7 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
     # Customize the markers - make them larger and more visible
     fig.update_traces(
         marker=dict(
-            size=14,  # Larger balls
+            size=15,  # Larger balls
             opacity=0.9,
             line=dict(width=1, color='DarkSlateGrey')
         ),
@@ -586,32 +587,21 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
 
     # Customize axes
     fig.update_xaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16,color="Black"),
+        tickfont=dict(family='Helvetica', size=14,color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True
     )
 
     fig.update_yaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16,color="Black"),
+        tickfont=dict(family='Helvetica', size=14,color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True
     )
 
-
-    # Add some helpful annotations
-    fig.add_annotation(
-        x=0.02, y=0.98,
-        xref="paper", yref="paper",
-        text=f"Total Messages: {len(df)}",
-        showarrow=False,
-        bgcolor="white",
-        bordercolor="black",
-        borderwidth=1
-    )
 
     # Show the plot
     fig.show()

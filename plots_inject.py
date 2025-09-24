@@ -139,7 +139,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
         yaxis_title='Message Size (bytes)',
         legend_title='<b>Messages<b>',
         title={
-            'text': 'Network Message Analysis: Received Messages Over Time',
+            'text': 'Received Messages Over Time',
             'x': 0.5,
             'xanchor': 'center',
             'font': dict(family='Helvetica', size=20, color='black')
@@ -172,16 +172,16 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
 
     # Customize axes
     fig.update_xaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16,color="Black"),
+        tickfont=dict(family='Helvetica', size=14,color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True
     )
 
     fig.update_yaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16,color="Black"),
+        tickfont=dict(family='Helvetica', size=14,color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True
