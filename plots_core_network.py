@@ -330,13 +330,13 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
 
     # Clean axes
     fig.update_xaxes(
-        title_font=dict(family='Helvetica', size=16,color="Black"),
-        tickfont=dict(family='Helvetica', size=14,color="Black")
+        title_font=dict(family='Helvetica', size=18,color="Black"),
+        tickfont=dict(family='Helvetica', size=16,color="Black")
     )
 
     fig.update_yaxes(
-        title_font=dict(family='Helvetica', size=16,color="Black"),
-        tickfont=dict(family='Helvetica', size=14,color="Black"),
+        title_font=dict(family='Helvetica', size=18,color="Black"),
+        tickfont=dict(family='Helvetica', size=16,color="Black"),
         gridcolor='lightgray'
     )
 
@@ -355,7 +355,9 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
 
     fig.write_image(
         "images/core_network/init_device_comparison.png",
-        scale=3  # multiplies the base resolution
+        width=2000,
+        height=1500,
+        scale=2  # multiplies the base resolution
     )
 
 def parent_recovery_bar_plot(df: pd.DataFrame):
@@ -382,7 +384,7 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
         fig.add_annotation(
             x=row.type,
             y=row.parent_recovery_time,
-            text=f"<b>{row.parent_recovery_time:.2f}s</b>",  # Bold text using HTML tags
+            text=f"{row.parent_recovery_time:.2f}s",  # Bold text using HTML tags
             showarrow=False,
             yshift=10,
             font=dict(
@@ -404,7 +406,7 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
         font_family='Helvetica',
         title_font_family='Helvetica',
         xaxis_title='Device',
-        yaxis_title='Mean Parent Recovery Time (s)',
+        yaxis_title='Time (s)',
         showlegend=False  # Remove legend since colors are self-explanatory
     )
 
@@ -423,6 +425,8 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
     #fig.show()
     fig.write_image(
         "images/core_network/parent_recovery_comparison.png",
+        width = 2000,
+        height= 1500,
         scale=2  # multiplies the base resolution
     )
 
@@ -688,7 +692,7 @@ if __name__ == '__main__':
     #     print(message_continuous_df)
     #     print(delay_df)
 
-    #figures = plot_bar_states_mean_pdevice(join_times_df)
+    figures = plot_bar_states_mean_pdevice(join_times_df)
 
     # # Show per device
     # figures["ESP8266"].show()
@@ -696,13 +700,13 @@ if __name__ == '__main__':
     # figures["RPI"].show()
     #stacked_bar_plot_integration_time(join_times_df)
 
-    #parent_recovery_bar_plot(parent_recovery_df)
+    parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 
     #plot_scatter_message_continuous(message_continuous_df)
 
-    calculate_mean_delay(delay_df)
+    #calculate_mean_delay(delay_df)
 
 
 
