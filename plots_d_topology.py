@@ -162,7 +162,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
     # Customize the markers - make them larger and more visible
     fig.update_traces(
         marker=dict(
-            size=14,  # Larger balls
+            size=15,  # Larger balls
             opacity=0.9,
             line=dict(width=1, color='DarkSlateGrey')
         ),
@@ -198,7 +198,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
 
 
 if __name__ == '__main__':
-    show_plots = False
+    show_plots = True
 
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_topology", 2)
 
