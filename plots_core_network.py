@@ -66,7 +66,14 @@ def get_dfs():
         {'timestamp': 'float64', 'messageType': 'str', 'strategyType': 'str', 'messageSubtype': 'str',
          'n_bytes': 'int32'})
 
-    return join_times_df, parent_recovery_df, message_interval_df, message_continuous_df
+    runs = []
+    for file in ['logs/core_network/' + "/" + f for f in os.listdir('logs/core_network/') if f.startswith('run-end-to-end-delay')]:
+        with open(file, 'r') as f:
+            runs += json.load(f)
+    delay_df = pd.DataFrame(runs)
+    delay_df = delay_df.astype({'node_ip': 'str', 'latency': 'int32', 'hop_count': 'int32'})
+
+    return join_times_df, parent_recovery_df, message_interval_df, message_continuous_df, delay_df
 
 
 def plot_violin(df: pd.DataFrame):
@@ -341,7 +348,7 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
             y=total_time * 1.03,  # Increased from 1.02 to 1.08 - moved higher
             text=f'Total: {total_time:.2f}s',
             showarrow=False,
-            font=dict(family='Helvetica', size=16, weight='bold', color='black'),
+            font=dict(family='Helvetica', size=15, weight='bold', color='black'),
             yshift=5  # Additional shift for extra spacing
         )
     fig.show()
@@ -380,7 +387,7 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
             yshift=10,
             font=dict(
                 family='Helvetica',
-                size=12,  # Specific size
+                size=15,  # Specific size
                 color='black'
             ),
             bgcolor='white',
@@ -613,27 +620,90 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
     )
 
 
+def calculate_mean_delay(df: pd.DataFrame):
+    hop_count_sum = df["hop_count"].values.sum()
+    latency_sum = df["latency"].values.sum()
+    mean_latency = latency_sum/hop_count_sum
+
+    min_latency = df.min(axis=0)["latency_per_hop"]
+    max_latency = df.max(axis=0)["latency_per_hop"]
+
+    df["latency_per_hop"] = df["latency"] / df["hop_count"]
+
+    # Helper functions
+    def mean_absolute_deviation(x):
+        m = x.mean()
+        return (x.sub(m).abs().mean())
+
+    def percentile(x, p):
+        return x.quantile(p / 100.0)
+
+    def outlier_ratio(x):
+        m = x.mean()
+        s = x.std()
+        if s == 0 or pd.isna(s):
+            return 0.0
+        return (x > m + 2 * s).mean()
+
+    #print(df.head())
+
+
+    # Boxplot: distribution of latency per hop count
+    fig_box = px.box(
+        df,
+        x="hop_count",
+        y="latency",
+        points="all",  # shows all data points
+        hover_data=["node_ip"],
+        title="Latency distribution per hop count"
+    )
+    fig_box.show()
+
+    # Group by hop_count and calculate key statistics
+    summary = df.groupby("hop_count").agg(
+        mean_latency=("latency", "mean"),
+        std_latency=("latency", "std"),
+        jitter=("latency", mean_absolute_deviation),
+        p95_latency=("latency", lambda x: percentile(x, 95)),
+        count=("latency", "count"),
+        outlier_ratio=("latency", outlier_ratio)
+    ).reset_index()
+
+    print("=== Summary table ===")
+    print(summary)
+
+
+
+
+
+
+
 if __name__ == '__main__':
-    join_times_df, parent_recovery_df, message_interval_df, message_continuous_df = get_dfs()
+    join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,delay_df= get_dfs()
 
     #with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
     #     print(join_times_df)
     #     print(parent_recovery_df)
     #     print(message_interval_df)
-    #      print(message_continuous_df)
+    #     print(message_continuous_df)
+    #     print(delay_df)
 
-    figures = plot_bar_states_mean_pdevice(join_times_df)
+    #figures = plot_bar_states_mean_pdevice(join_times_df)
 
     # # Show per device
     # figures["ESP8266"].show()
     # figures["ESP32"].show()
     # figures["RPI"].show()
-    stacked_bar_plot_integration_time(join_times_df)
-    #
-    parent_recovery_bar_plot(parent_recovery_df)
+    #stacked_bar_plot_integration_time(join_times_df)
+
+    #parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 
-    plot_scatter_message_continuous(message_continuous_df)
+    #plot_scatter_message_continuous(message_continuous_df)
+
+    calculate_mean_delay(delay_df)
+
+
 
 

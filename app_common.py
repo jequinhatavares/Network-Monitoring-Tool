@@ -6,11 +6,12 @@ import json
 
 import random
 import plotly.graph_objects as go
+from networkx.algorithms.bipartite.basic import color
 
 from plotly.colors import qualitative
 
 
-def get_dfs(directory:str, n:int):
+def get_dfs(directory: str, n: int):
     runs = []
     for file in [directory + "/" + f for f in os.listdir(directory) if f.startswith('run-app-init')]:
         with open(file, 'r') as f:
@@ -54,12 +55,7 @@ def clean_df(df: pd.DataFrame):
             df.at[idx, "n_bytes"] += header_size
 
 
-def plot_scatter_inference_time(df: pd.DataFrame, save_path:str, show_plot=False):
-    # Create scatter plot
-    fig = px.scatter(df, x='inference_id', y='inference_time_ms',
-                     title='<b>Inference Time by Inference ID</b>',
-                     labels={'inference_time_ms': 'Inference Time (ms)', 'inference_id': 'Inference ID'})
-
+def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=False):
     # Calculate statistics
     min_time = df['inference_time_ms'].min()
     max_time = df['inference_time_ms'].max()
@@ -76,9 +72,28 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path:str, show_plot=False
                       color_continuous_scale='plasma')
 
     # Add statistical lines
-    fig2.add_hline(y=min_time, line_dash="dash", line_color="grey", annotation_text=f"<b>Min: {min_time:.1f}ms<b>")
-    fig2.add_hline(y=max_time, line_dash="dash", line_color="grey", annotation_text=f"<b>Max: {max_time:.1f}ms<b>")
-    fig2.add_hline(y=mean_time, line_dash="dash", line_color="grey", annotation_text=f"<b>Mean: {mean_time:.1f}ms<b>")
+    fig2.add_hline(y=min_time,
+                   line_dash="dash",
+                   line_color="grey",
+                   annotation=dict(
+                       text=f"Min: {min_time:.1f} ms",
+                       font=dict(size=14, family="Helvetica", color="Black"),  # change size and font here
+                       align="left")
+                   )
+    fig2.add_hline(y=max_time,line_dash="dash",
+                   line_color="grey",
+                   annotation=dict(
+                       text=f"Max: {max_time:.1f} ms",
+                       font=dict(size=14, family="Helvetica", color="Black"),  # change size and font here
+                       align="left")
+                   )
+    fig2.add_hline(y=mean_time, line_color="grey",
+                   line_dash="dash",
+                   annotation=dict(
+                       text=f"Mean: {mean_time:.1f} ms",
+                       font=dict(size=14, family="Helvetica", color="Black"),  # change size and font here
+                       align="left")
+                   )
 
     fig2.update_layout(
         xaxis_title='Inference ID',
@@ -97,26 +112,27 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path:str, show_plot=False
         marker=dict(
             size=22,  # Larger balls
             opacity=0.6,
-            line=dict(width=1, color='white')
+            line=dict(width=1, color='white'),
         ),
-        selector=dict(mode='markers')
+        selector=dict(mode='markers'),
+
     )
 
     # Customize axes
     fig2.update_xaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16, color="Black"),
+        tickfont=dict(family='Helvetica', size=14, color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True
     )
 
     fig2.update_yaxes(
-        title_font=dict(family='Helvetica', size=14),
-        tickfont=dict(family='Helvetica', size=12),
+        title_font=dict(family='Helvetica', size=16, color="Black"),
+        tickfont=dict(family='Helvetica', size=14, color="Black"),
         gridcolor='lightgray',
         griddash='dash',
-        showgrid=True
+        showgrid=True,
     )
 
     if show_plot:
@@ -179,7 +195,8 @@ def analyze_message_metrics(df):
 
     # Routing messages analysis
     routing_keywords = ['ROUTING']
-    routing_messages = df_analysis[df_analysis['messageType'].str.contains('|'.join(routing_keywords), case=False, na=False)]
+    routing_messages = df_analysis[
+        df_analysis['messageType'].str.contains('|'.join(routing_keywords), case=False, na=False)]
     total_routing_messages = len(routing_messages)
     routing_percentage = (total_routing_messages / total_messages * 100)
     routing_bytes = routing_messages['n_bytes'].sum()
@@ -193,7 +210,8 @@ def analyze_message_metrics(df):
 
     # Middleware messages analysis
     middleware_keywords = ['MIDDLEWARE']
-    middleware_messages = df_analysis[df_analysis['messageType'].str.contains('|'.join(middleware_keywords), case=False, na=False)]
+    middleware_messages = df_analysis[
+        df_analysis['messageType'].str.contains('|'.join(middleware_keywords), case=False, na=False)]
     total_middleware_messages = len(middleware_messages)
     middleware_percentage = (total_middleware_messages / total_messages * 100)
     middleware_bytes = data_messages['n_bytes'].sum()
@@ -269,7 +287,7 @@ def analyze_message_metrics(df):
     return results
 
 
-def create_throughput_bar_plot(df, metrics,save_path:str, show_plot=False):
+def create_throughput_bar_plot(df, metrics, save_path: str, show_plot=False):
     """
     Create a standalone bar plot for throughput by message category
     """
@@ -349,7 +367,7 @@ def create_throughput_bar_plot(df, metrics,save_path:str, show_plot=False):
     fig.write_image(save_path, scale=3)
 
 
-def create_four_category_pie(df, save_path:str, show_plot=False):
+def create_four_category_pie(df, save_path: str, show_plot=False):
     """
     Create a pie plot with exactly the four specified categories
     """
@@ -412,7 +430,6 @@ def create_four_category_pie(df, save_path:str, show_plot=False):
                     # width=1000,  # width in pixels
                     # height=600,  # height in pixels
                     scale=4)
-
 
 
 # Get the default Plotly colors and extend with additional colors
