@@ -10,6 +10,7 @@ from networkx.algorithms.bipartite.basic import color
 
 from plotly.colors import qualitative
 
+max_continuous_sample = 607.61
 
 def get_dfs(directory: str, n: int):
     runs = []
@@ -37,14 +38,20 @@ def get_dfs(directory: str, n: int):
         {'timestamp': 'float64', 'messageType': 'str', 'strategyType': 'str', 'messageSubtype': 'str',
          'n_bytes': 'int32'})
 
-    # Filter directly using the time difference
+    print("Min timestamp:", message_continuous_df['timestamp'].min())
+    print("Max timestamp:", message_continuous_df['timestamp'].max())
+    print("Data types:\n", message_continuous_df.dtypes)
+    print("Number of rows before filter:", len(message_continuous_df))
+
+    # Filter rows within the first 607.61 seconds
     start_time = message_continuous_df['timestamp'].min()
-    message_continuous_df = message_continuous_df[message_continuous_df['timestamp'] - start_time <= 607.61]
+    message_continuous_df_filter = message_continuous_df[message_continuous_df['timestamp'] - start_time <= max_continuous_sample]
 
-    # Remove MONITORING_MESSAGE rows
-    message_continuous_df = message_continuous_df[message_continuous_df['messageType'] != 'MONITORING_MESSAGE']
+    print("Number of rows after filter:", len(message_continuous_df_filter))
+    print("Max elapsed time after filter:", (message_continuous_df_filter['timestamp'] - start_time).max())
 
-    return app_init_df, app_inference_df, message_continuous_df
+
+    return app_init_df, app_inference_df, message_continuous_df_filter
 
 
 def clean_df(df: pd.DataFrame):
@@ -165,7 +172,8 @@ def analyze_message_metrics(df):
     # Calculate time range and duration
     start_time = df_analysis['datetime'].min()
     end_time = df_analysis['datetime'].max()
-    duration_seconds = (end_time - start_time).total_seconds()
+    #duration_seconds = (end_time - start_time).total_seconds()
+    duration_seconds = max_continuous_sample
 
     # Basic metrics
     total_messages = len(df_analysis)
@@ -214,7 +222,24 @@ def analyze_message_metrics(df):
         df_analysis['messageType'].str.contains('|'.join(middleware_keywords), case=False, na=False)]
     total_middleware_messages = len(middleware_messages)
     middleware_percentage = (total_middleware_messages / total_messages * 100)
-    middleware_bytes = data_messages['n_bytes'].sum()
+    middleware_bytes = middleware_messages['n_bytes'].sum()
+
+    # Detailed subtype analysis for DATA_MESSAGES
+    data_messages = df_analysis[df_analysis['messageType'].str.contains('DATA', case=False, na=False)]
+    total_data_messages = len(data_messages)
+
+    # Analyze subtypes within DATA_MESSAGES
+    if not data_messages.empty:
+        data_subtype_counts = data_messages['messageSubtype'].value_counts()
+        data_subtype_percentages = (data_subtype_counts / total_data_messages * 100)
+
+        # Bytes analysis by DATA_MESSAGE subtype
+        data_subtype_bytes = data_messages.groupby('messageSubtype')['n_bytes'].agg(['sum', 'mean', 'count'])
+        data_subtype_bytes['bytes_per_second'] = data_subtype_bytes['sum'] / duration_seconds
+    else:
+        data_subtype_counts = pd.Series()
+        data_subtype_percentages = pd.Series()
+        data_subtype_bytes = pd.DataFrame()
 
     # Print comprehensive report with proper formatting
     print("=" * 60)
@@ -228,17 +253,13 @@ def analyze_message_metrics(df):
     print(f"• Duration: {duration_seconds / 60:.2f} minutes")
     print(f"• Average Bytes/Second: {bytes_per_second_total:.2f} B/s")
 
-    print(f"\n COMPREHENSIVE MESSAGES:")
-    print(f"• Routing Messages: {total_routing_messages:,} ({routing_percentage:.2f}%)")
-    print(f"• Data Messages: {total_data_messages:,} ({data_percentage:.2f}%)")
-    print(f"• Middleware Messages: {total_middleware_messages:,} ({middleware_percentage:.2f}%)")
-    print(f"• Routing Bytes: {routing_bytes:,} bytes")
-    print(f"• Data Bytes: {data_bytes:,} bytes")
-    print(f"• Middleware Bytes: {middleware_bytes:,} bytes")
-    print(
-        f"• Routing Bytes/Second: {routing_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Routing Bytes/Second: N/A")
-    print(
-        f"• Data Bytes/Second: {data_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Data Bytes/Second: N/A")
+    print(f"\n MESSAGE CATEGORIES ANALYSIS:")
+    print(f"• Routing Messages: {total_routing_messages:,} Routing Bytes: {routing_bytes:,} bytes ({routing_percentage:.2f}%) Bytes/Second: "
+          f"{routing_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Routing Bytes/Second: N/A")
+    print(f"• Data Messages: {total_data_messages:,} ({data_percentage:.2f}%) Data Bytes: {data_bytes:,} bytes"
+          f" Data Bytes/Second: {data_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Data Bytes/Second: N/A")
+    print(f"• Middleware Messages: {total_middleware_messages:,} ({middleware_percentage:.2f}%) Middleware Bytes: {middleware_bytes:,} bytes "
+          f"Middleware Bytes/Second: {middleware_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Midd Bytes/Second: N/A")
 
     print(f"\n MESSAGE TYPE BREAKDOWN:")
     for msg_type, count in message_type_counts.items():
@@ -247,7 +268,7 @@ def analyze_message_metrics(df):
         avg_bytes = bytes_by_message_type.loc[msg_type, 'mean'] if msg_type in bytes_by_message_type.index else 0
         print(f"• {msg_type}: {count:,} messages ({percentage:.2f}%) - {bytes_sum:,} bytes ({avg_bytes:.1f} avg/msg)")
 
-    print(f"\n STRATEGY TYPE DISTRIBUTION:")
+    print(f"\n MIDDLEWARE MESSAGE  DISTRIBUTION:")
     for strategy, count in strategy_counts.items():
         percentage = strategy_percentages[strategy]
         strategy_name = strategy if pd.notna(strategy) else 'None'
@@ -259,6 +280,16 @@ def analyze_message_metrics(df):
             percentage = subtype_percentages[subtype]
             subtype_name = subtype if pd.notna(subtype) else 'None'
             print(f"• {subtype_name}: {count:,} messages ({percentage:.2f}%)")
+
+    # DATA_MESSAGE SUBTYPE BREAKDOWN
+    if not data_subtype_counts.empty:
+        print(f"\nDATA_MESSAGE SUBTYPE BREAKDOWN:")
+        print(f"Total DATA_MESSAGES: {total_data_messages:,}")
+        for subtype, count in data_subtype_counts.items():
+            percentage = data_subtype_percentages[subtype]
+            subtype_data = data_subtype_bytes.loc[subtype] if subtype in data_subtype_bytes.index else None
+            bytes_info = f" - {subtype_data['sum']:,} bytes ({subtype_data['mean']:.1f} avg, {subtype_data['bytes_per_second']:.2f} B/s)" if subtype_data is not None else ""
+            print(f"  • {subtype}: {count:,} messages ({percentage:.2f}%){bytes_info}")
 
     print(f"\n BYTES ANALYSIS BY MESSAGE TYPE:")
     for msg_type in bytes_by_message_type.index:
@@ -278,6 +309,9 @@ def analyze_message_metrics(df):
         'strategy_percentages': {k: float(v) for k, v in strategy_percentages.items()},
         'routing_messages': total_routing_messages,
         'data_messages': total_data_messages,
+        'data_message_subtypes': data_subtype_counts.to_dict() if not data_subtype_counts.empty else {},
+        'data_subtype_percentages': {k: float(v) for k, v in data_subtype_percentages.items()} if not data_subtype_percentages.empty else {},
+        'data_subtype_bytes': data_subtype_bytes.to_dict() if not data_subtype_bytes.empty else {},
         'routing_percentage': float(routing_percentage),
         'data_percentage': float(data_percentage),
         'bytes_by_message_type': bytes_by_message_type.to_dict(),

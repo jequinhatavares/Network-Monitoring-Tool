@@ -27,7 +27,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
         "NN_WORKER_REGISTRATION": "Worker Registration",
         "NN_INPUT_REGISTRATION": "Input Registration",
         "NN_OUTPUT_REGISTRATION": "Output Registration",
-        "None": "Neuron Output(Forward)",
+        "None": "Neuron Output",
     }
 
     # Mapping of middleware message subtypes (pub/sub)
@@ -199,7 +199,7 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
 
 
 if __name__ == '__main__':
-    show_plots = True
+    show_plots = False
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/centralized_nn_12_strategy_inject",0)
 
     # with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
