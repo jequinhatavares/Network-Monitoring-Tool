@@ -84,21 +84,21 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
                    line_color="grey",
                    annotation=dict(
                        text=f"Min: {min_time:.1f} ms",
-                       font=dict(size=14, family="Helvetica", color="Black"),  # change size and font here
+                       font=dict(size=16, family="Helvetica", color="Black"),  # change size and font here
                        align="left")
                    )
     fig2.add_hline(y=max_time,line_dash="dash",
                    line_color="grey",
                    annotation=dict(
                        text=f"Max: {max_time:.1f} ms",
-                       font=dict(size=14, family="Helvetica", color="Black"),  # change size and font here
+                       font=dict(size=16, family="Helvetica", color="Black"),  # change size and font here
                        align="left")
                    )
     fig2.add_hline(y=mean_time, line_color="grey",
                    line_dash="dash",
                    annotation=dict(
                        text=f"Mean: {mean_time:.1f} ms",
-                       font=dict(size=14, family="Helvetica", color="Black"),  # change size and font here
+                       font=dict(size=16, family="Helvetica", color="Black"),  # change size and font here
                        align="left")
                    )
 
@@ -127,16 +127,16 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
 
     # Customize axes
     fig2.update_xaxes(
-        title_font=dict(family='Helvetica', size=16, color="Black"),
-        tickfont=dict(family='Helvetica', size=14, color="Black"),
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True
     )
 
     fig2.update_yaxes(
-        title_font=dict(family='Helvetica', size=16, color="Black"),
-        tickfont=dict(family='Helvetica', size=14, color="Black"),
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
         gridcolor='lightgray',
         griddash='dash',
         showgrid=True,
@@ -241,6 +241,23 @@ def analyze_message_metrics(df):
         data_subtype_percentages = pd.Series()
         data_subtype_bytes = pd.DataFrame()
 
+    # MONITORING_MESSAGE analysis
+    monitoring_keywords = ['MONITORING_MESSAGE']
+    monitoring_messages = df_analysis[
+        df_analysis['messageType'].str.contains('|'.join(monitoring_keywords), case=False, na=False)]
+    total_monitoring_messages = len(monitoring_messages)
+    monitoring_percentage = (total_monitoring_messages / total_messages * 100)
+    monitoring_bytes = monitoring_messages['n_bytes'].sum()
+
+    # Lifecycle messages analysis - all messages that are not routing, data, middleware, or monitoring
+    excluded_keywords = routing_keywords + data_keywords + middleware_keywords + monitoring_keywords
+    lifecycle_messages = df_analysis[
+        ~df_analysis['messageType'].str.contains('|'.join(excluded_keywords), case=False, na=False)
+    ]
+    total_lifecycle_messages = len(lifecycle_messages)
+    lifecycle_percentage = (total_lifecycle_messages / total_messages * 100)
+    lifecycle_bytes = lifecycle_messages['n_bytes'].sum()
+
     # Print comprehensive report with proper formatting
     print("=" * 60)
     print("MESSAGING METRICS ANALYSIS")
@@ -260,6 +277,8 @@ def analyze_message_metrics(df):
           f" Data Bytes/Second: {data_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Data Bytes/Second: N/A")
     print(f"• Middleware Messages: {total_middleware_messages:,} ({middleware_percentage:.2f}%) Middleware Bytes: {middleware_bytes:,} bytes "
           f"Middleware Bytes/Second: {middleware_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Midd Bytes/Second: N/A")
+    print(f"• Lifecycle Messages: {total_lifecycle_messages:,} ({lifecycle_percentage:.2f}%) Lifecycle Bytes: {lifecycle_bytes:,} bytes "
+        f"Lifecycle Bytes/Second: {lifecycle_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• lifecycle Bytes/Second: N/A")
 
     print(f"\n MESSAGE TYPE BREAKDOWN:")
     for msg_type, count in message_type_counts.items():

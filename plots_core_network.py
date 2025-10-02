@@ -6,6 +6,7 @@ import json
 import plotly
 import plotly.colors as pc
 
+from app_common import *
 
 import plotly.graph_objects as go
 from networkx.algorithms.bipartite.basic import color
@@ -65,6 +66,10 @@ def get_dfs():
     message_continuous_df = message_continuous_df.astype(
         {'timestamp': 'float64', 'messageType': 'str', 'strategyType': 'str', 'messageSubtype': 'str',
          'n_bytes': 'int32'})
+    # Filter rows within the first 607.61 seconds
+    start_time = message_continuous_df['timestamp'].min()
+    message_continuous_df_filter = message_continuous_df[
+        message_continuous_df['timestamp'] - start_time <= max_continuous_sample]
 
     runs = []
     for file in ['logs/core_network/' + "/" + f for f in os.listdir('logs/core_network/') if f.startswith('run-end-to-end-delay')]:
@@ -73,7 +78,7 @@ def get_dfs():
     delay_df = pd.DataFrame(runs)
     delay_df = delay_df.astype({'node_ip': 'str', 'latency': 'int32', 'hop_count': 'int32'})
 
-    return join_times_df, parent_recovery_df, message_interval_df, message_continuous_df, delay_df
+    return join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,message_continuous_df_filter,delay_df
 
 
 def plot_violin(df: pd.DataFrame):
@@ -683,7 +688,7 @@ def calculate_mean_delay(df: pd.DataFrame):
 
 
 if __name__ == '__main__':
-    join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,delay_df= get_dfs()
+    join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,message_continuous_df_filter,delay_df= get_dfs()
 
     #with pd.option_context('display.max_rows', None,'display.max_columns', None,'display.width', None,'display.max_colwidth', None):
     #     print(join_times_df)
@@ -698,15 +703,17 @@ if __name__ == '__main__':
     # figures["ESP8266"].show()
     # figures["ESP32"].show()
     # figures["RPI"].show()
-    stacked_bar_plot_integration_time(join_times_df)
+    #stacked_bar_plot_integration_time(join_times_df)
 
-    parent_recovery_bar_plot(parent_recovery_df)
+    #parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 
     #plot_scatter_message_continuous(message_continuous_df)
 
     #calculate_mean_delay(delay_df)
+
+    analyze_message_metrics(message_continuous_df_filter)
 
 
 
