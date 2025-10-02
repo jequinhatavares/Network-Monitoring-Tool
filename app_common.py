@@ -279,6 +279,8 @@ def analyze_message_metrics(df):
           f"Middleware Bytes/Second: {middleware_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• Midd Bytes/Second: N/A")
     print(f"• Lifecycle Messages: {total_lifecycle_messages:,} ({lifecycle_percentage:.2f}%) Lifecycle Bytes: {lifecycle_bytes:,} bytes "
         f"Lifecycle Bytes/Second: {lifecycle_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• lifecycle Bytes/Second: N/A")
+    print(f"• Monitoring Messages: {total_monitoring_messages:,} ({monitoring_percentage:.2f}%) Monitoring Bytes: {monitoring_bytes:,} bytes "
+        f"Monitoring Bytes/Second: {monitoring_bytes / duration_seconds:.2f} B/s" if duration_seconds > 0 else "• lifecycle Bytes/Second: N/A")
 
     print(f"\n MESSAGE TYPE BREAKDOWN:")
     for msg_type, count in message_type_counts.items():
