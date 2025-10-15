@@ -656,6 +656,12 @@ if __name__ == '__main__':
     for device_type, count in recovery_counts.items():
         print(f"{device_type}: {count} occurrences")
 
+    delay_count = delay_df['hop_count'].value_counts()
+    print("RTT Samples by Hop Count:")
+    print("===================")
+    for n_hops, count in delay_count.items():
+        print(f"{n_hops}: {count} occurrences")
+
     #figures = plot_bar_states_mean_pdevice(join_times_df)
 
     # # Show per device
@@ -676,6 +682,10 @@ if __name__ == '__main__':
 
     #box_plot_with_3_devices_by_state(join_times_df)
 
+    violin_plot_with_3_devices_by_state(join_times_df)
+
     #box_plot_parent_recovery_by_device(parent_recovery_df)
+
+    violin_plot_parent_recovery_by_device(parent_recovery_df)
 
 
