@@ -317,6 +317,7 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
         scale=1  # multiplies the base resolution
     )
 
+
 def parent_recovery_bar_plot(df: pd.DataFrame):
     # Calculate mean recovery time by device type
     # Convert milliseconds to seconds
@@ -682,10 +683,10 @@ if __name__ == '__main__':
 
     #box_plot_with_3_devices_by_state(join_times_df)
 
-    violin_plot_with_3_devices_by_two_states(join_times_df)
+    #violin_plot_with_3_devices_by_two_states(join_times_df)
 
     #box_plot_parent_recovery_by_device(parent_recovery_df)
 
-    violin_plot_parent_recovery_by_device_annotations(parent_recovery_df)
+    #violin_plot_parent_recovery_by_device_annotations(parent_recovery_df)
 
 

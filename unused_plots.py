@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+from matplotlib.pyplot import title
 from networkx.algorithms.bipartite.basic import color
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -313,16 +314,21 @@ def violin_plot_with_3_devices_by_two_states(df: pd.DataFrame):
     for i in range(1, 3):  # Now only 2 subplots
         fig.update_yaxes(
             title_text='Time (s)',
-            title_font=axis_title_font,
-            tickfont=tick_font,
+            title_font=dict(family='Helvetica', size=18,color='black'),
+            tickfont=dict(family='Helvetica', size=16,color="Black"),
             row=1, col=i,
             gridcolor='lightgray',
-            type='log'
+            griddash='dash',
+            showgrid=True
         )
         fig.update_xaxes(
             title_text='',
-            tickfont=tick_font,
+            title_font=dict(family='Helvetica', size=18, color='black'),
+            tickfont=dict(family='Helvetica', size=16, color="Black"),
             row=1, col=i,
+            gridcolor='lightgray',
+            griddash='dash',
+            showgrid=True
         )
 
     # Update subplot titles (only 2 now)
