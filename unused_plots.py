@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+from networkx.algorithms.bipartite.basic import color
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
@@ -166,6 +167,170 @@ def violin_plot_with_3_devices_by_state(df: pd.DataFrame):
 
     fig.show()
 
+def violin_plot_with_3_devices_by_state_log(df: pd.DataFrame):
+    states = ['init_time', 'search_time', 'join_time']
+    state_labels = {
+        'init_time': 'Init State',
+        'search_time': 'Search State',
+        'join_time': 'Join State'
+    }
+    devices = ['ESP8266', 'ESP32', 'RPI']
+
+    # Create subplots
+    fig = make_subplots(
+        rows=1,
+        cols=3,
+        subplot_titles=[state_labels[state] for state in states],
+        horizontal_spacing=0.08  # Slightly more spacing
+    )
+
+    for i, state in enumerate(states, start=1):
+        for j, device in enumerate(devices):
+            sub_df = df[df["type"] == device]
+            time_seconds = sub_df[state] / 1000  # Convert to seconds
+
+            # Filter out zero or negative values for log scale
+            time_seconds = time_seconds[time_seconds > 0]
+
+            fig.add_trace(go.Violin(
+                y=time_seconds,
+                name=device,
+                marker_color=device_colors[device],
+                line=dict(width=2),  # Thicker violin lines
+                width=0.5,  # Slightly wider violins
+                offsetgroup=j,
+                showlegend=(i == 1),
+                box_visible=True,  # Show box plot inside violin
+                meanline_visible=True,  # Show mean line
+                points=False,  # Don't show individual points
+            ), row=1, col=i)
+
+    # Font settings
+    font_settings = dict(family='Helvetica')
+    title_font = dict(family='Helvetica', size=20)
+    axis_title_font = dict(family='Helvetica', size=14)
+    tick_font = dict(family='Helvetica', size=12)
+
+    # Update layout
+    fig.update_layout(
+        title={
+            'text': 'Device Performance by State',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': title_font
+        },
+        font=font_settings,
+        violinmode='group',  # Changed from boxmode to violinmode
+        legend={'font': tick_font},
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(t=80, b=60, l=60, r=60)
+    )
+
+    # Update all y-axes with logarithmic scale (simple version)
+    for i in range(1, 4):
+        fig.update_yaxes(
+            title_text='Time (s)',
+            title_font=axis_title_font,
+            tickfont=tick_font,
+            row=1, col=i,
+            gridcolor='lightgray',
+            type='log'  # Only this line is needed for log scale
+        )
+        fig.update_xaxes(
+            title_text='',
+            tickfont=tick_font,
+            row=1, col=i,
+        )
+
+    # Update subplot titles
+    for i in range(3):
+        fig.layout.annotations[i].update(font=dict(family='Helvetica', size=16, color='black'))
+
+    fig.show()
+
+def violin_plot_with_3_devices_by_two_states(df: pd.DataFrame):
+    # Keep all states but exclude init_time from plotting
+    states = ['search_time', 'join_time']  # Remove init_time
+    state_labels = {
+        'search_time': 'Search State',
+        'join_time': 'Join State'
+    }
+    devices = ['ESP8266', 'ESP32', 'RPI']
+
+    # Create subplots with 2 columns (for search and join only)
+    fig = make_subplots(
+        rows=1,
+        cols=2,  # Now only 2 columns
+        subplot_titles=[state_labels[state] for state in states],
+        horizontal_spacing=0.08
+    )
+
+    for i, state in enumerate(states, start=1):
+        for j, device in enumerate(devices):
+            sub_df = df[df["type"] == device]
+            time_seconds = sub_df[state] / 1000  # Convert to seconds
+
+            # Filter out zero or negative values for log scale
+            time_seconds = time_seconds[time_seconds > 0]
+
+            fig.add_trace(go.Violin(
+                y=time_seconds,
+                name=device,
+                marker_color=device_colors[device],
+                line=dict(width=2),
+                width=0.5,
+                offsetgroup=j,
+                showlegend=(i == 1),  # Show legend only for first subplot
+                box_visible=True,
+                meanline_visible=True,
+                points=False,
+            ), row=1, col=i)
+
+    # Font settings
+    font_settings = dict(family='Helvetica')
+    title_font = dict(family='Helvetica', size=20)
+    axis_title_font = dict(family='Helvetica', size=14)
+    tick_font = dict(family='Helvetica', size=12)
+
+    # Update layout
+    fig.update_layout(
+        title={
+            'text': 'Device Performance by State',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': title_font
+        },
+        font=font_settings,
+        violinmode='group',
+        legend={'font': tick_font},
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(t=80, b=60, l=60, r=60)
+    )
+
+    # Update y-axes for both subplots
+    for i in range(1, 3):  # Now only 2 subplots
+        fig.update_yaxes(
+            title_text='Time (s)',
+            title_font=axis_title_font,
+            tickfont=tick_font,
+            row=1, col=i,
+            gridcolor='lightgray',
+            type='log'
+        )
+        fig.update_xaxes(
+            title_text='',
+            tickfont=tick_font,
+            row=1, col=i,
+        )
+
+    # Update subplot titles (only 2 now)
+    for i in range(2):  # Now only 2 subplots
+        fig.layout.annotations[i].update(font=dict(family='Helvetica', size=16, color='black'))
+
+    fig.show()
+
 def box_plot_parent_recovery_by_device(df: pd.DataFrame):
     # Get device types and sort them for consistent ordering
     device_types = sorted(df['type'].unique())
@@ -212,45 +377,38 @@ def box_plot_parent_recovery_by_device(df: pd.DataFrame):
 
     fig.show()
 
-
 def violin_plot_parent_recovery_by_device(df: pd.DataFrame):
-    # Get device types and sort them for consistent ordering
-    device_types = sorted(df['type'].unique())
+    # Convert time to seconds
+    df_copy = df.copy()
+    df_copy['parent_recovery_time_s'] = df_copy['parent_recovery_time'] / 1000
 
-    # Create a single figure (no subplots)
-    fig = go.Figure()
-
-    # Add violin plot for each device type to the same plot
-    for device_type in device_types:
-        # Convert from ms to s by dividing by 1000
-        device_data = df[df['type'] == device_type]['parent_recovery_time'] / 1000
-        fig.add_trace(
-            go.Violin(y=device_data,
-                     name=device_type,
-                     box_visible=True,        # Show box plot inside violin
-                     meanline_visible=True,   # Show mean line
-                     points=False,            # Don't show individual points
-                     showlegend=False,
-                     line=dict(width=2),      # Thicker violin lines
-                     )
-        )
+    # Create the violin plot
+    fig = px.violin(
+        df_copy,
+        x='type',
+        y='parent_recovery_time_s',
+        category_orders={'type': ['ESP8266', 'ESP32', 'RPI']},
+        color='type',
+        box=True,  # Show box inside violin
+        points=False  # Don't show points
+    )
 
     # Update layout
     fig.update_layout(
         title='Parent Recovery Time by Device Type',
         yaxis_title='Recovery Time (s)',
         xaxis_title='Device Type',
-        showlegend=False,
-        violinmode='group',  # Group violins together
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        legend_title_text='Device Types'
     )
 
-    # Customize axes
+    # Customize fonts and grid
     fig.update_xaxes(
         title_font=dict(family='Helvetica', size=18, color="Black"),
         tickfont=dict(family='Helvetica', size=16, color="Black"),
         gridcolor='lightgray',
         griddash='dash',
-        showgrid=True
     )
 
     fig.update_yaxes(
@@ -258,7 +416,100 @@ def violin_plot_parent_recovery_by_device(df: pd.DataFrame):
         tickfont=dict(family='Helvetica', size=16, color="Black"),
         gridcolor='lightgray',
         griddash='dash',
-        showgrid=True,
+    )
+
+    fig.show()
+
+
+def violin_plot_parent_recovery_by_device_annotations(df: pd.DataFrame):
+    # Convert time to seconds
+    df_copy = df.copy()
+    df_copy['parent_recovery_time_s'] = df_copy['parent_recovery_time'] / 1000
+
+    # Create the violin plot
+    fig = px.violin(
+        df_copy,
+        x='type',
+        y='parent_recovery_time_s',
+        category_orders={'type': ['ESP8266', 'ESP32', 'RPI']},
+        color='type',
+        box=True,  # Show box inside violin
+        points=False  # Don't show points
+    )
+
+    # Calculate Y-axis range
+    max_time = df_copy['parent_recovery_time_s'].max()
+    y_upper = max(5, (max_time // 5 + 1) * 5)
+
+    # Calculate statistics for each device type
+    device_stats = {}
+    y_max = 0  # Track overall max for positioning
+    for device in ['ESP8266', 'ESP32', 'RPI']:
+        device_data = df_copy[df_copy['type'] == device]['parent_recovery_time_s']
+        device_stats[device] = {
+            'mean': device_data.mean(),
+            'max': device_data.max(),
+            'min': device_data.min()
+        }
+        y_max = max(y_max, device_data.max())
+
+    # Add annotations for each device, positioned to the right
+    for i, device in enumerate(['ESP8266', 'ESP32', 'RPI']):
+        stats = device_stats[device]
+        fig.add_annotation(
+            x=i + 0.15,  # Shift to the right of the violin
+            y=y_max * 0.9,  # Position near the top but consistent for all
+            text=f"<b>{device}</b><br>Mean: {stats['mean']:.2f}s<br>Max: {stats['max']:.2f}s<br>Min: {stats['min']:.2f}s",
+            showarrow=False,
+            bgcolor="white",
+            bordercolor="black",
+            borderwidth=1,
+            borderpad=4,
+            font=dict(size=10, family="Helvetica"),
+            align="left",
+            xanchor="left"  # Anchor text to left so it extends rightward
+        )
+
+    # Update layout
+    fig.update_layout(
+        title='Parent Recovery Time by Device Type',
+        yaxis_title='Recovery Time (s)',
+        xaxis_title='Device Type',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        legend_title_text='Device Types'
+    )
+
+    # Customize fonts and grid
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray',
+        griddash='dash',
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray',
+        griddash='dash',
+        # Add more granularity to Y-axis
+        # Labels every 5 seconds
+        # tickmode='array',
+        # tickvals=list(range(0, int(y_upper) + 1, 5)),
+        # ticktext=[f"{i}" for i in range(0, int(y_upper) + 1, 5)],
+        # # Grid lines will follow the tick frequency (5 seconds)
+        # # To get 1-second grid lines, we'd need to use shapes
+        # range=[0, y_upper],
+        # # Configure minor grid lines for 1-second intervals
+        # minor = dict(
+        #     ticklen=0,  # No tick marks
+        #     showgrid=True,
+        #     gridcolor='lightgray',
+        #     griddash='dash',
+        #     dtick=1  # Every 1 second
+        # )
+
     )
 
     fig.show()
