@@ -2,6 +2,15 @@ import pandas as pd
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import plotly.express as px
+
+# Device color mapping
+device_colors = {
+    "ESP8266": px.colors.qualitative.Plotly[0],
+    "ESP32": px.colors.qualitative.Plotly[1],
+    "RPI": px.colors.qualitative.Plotly[2]
+}
+
 
 def box_plot_with_3_devices_by_state(df: pd.DataFrame):
     states = ['init_time', 'search_time', 'join_time']
@@ -64,12 +73,13 @@ def box_plot_with_3_devices_by_state(df: pd.DataFrame):
             title_text='Time (s)',
             title_font=axis_title_font,
             tickfont=tick_font,
-            row=1, col=i
+            row=1, col=i,
+            gridcolor='lightgray',
         )
         fig.update_xaxes(
             title_text='',
             tickfont=tick_font,
-            row=1, col=i
+            row=1, col=i,
         )
 
     # Update subplot titles
@@ -79,6 +89,51 @@ def box_plot_with_3_devices_by_state(df: pd.DataFrame):
     fig.show()
 
 
+def box_plot_parent_recovery_by_device(df: pd.DataFrame):
+    # Get device types and sort them for consistent ordering
+    device_types = sorted(df['type'].unique())
+
+    # Create a single figure (no subplots)
+    fig = go.Figure()
+
+    # Add box plot for each device type to the same plot
+    for device_type in device_types:
+        # Convert from ms to s by dividing by 1000
+        device_data = df[df['type'] == device_type]['parent_recovery_time'] / 1000
+        fig.add_trace(
+            go.Box(y=device_data,
+                   name=device_type,
+                   #boxpoints='all',
+                   jitter=0.3
+                   )
+        )
+
+    # Update layout
+    fig.update_layout(
+        title='Parent Recovery Time by Device Type',
+        yaxis_title='Recovery Time (s)',
+        xaxis_title='Device Type',
+        showlegend=False,
+    )
+
+    # Customize axes
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray',
+        griddash='dash',
+        showgrid=True,
+    )
+
+    fig.show()
 
 
 def bar_plot_with_3_devices_by_state(df: pd.DataFrame):
@@ -210,6 +265,56 @@ def bar_plot_with_3_devices_by_state(df: pd.DataFrame):
 
     fig.show()
 
+
+def plot_violin(df: pd.DataFrame):
+    # Melt the DataFrame to long format for plotting
+    df_melted = df.melt(id_vars=['type'],
+                        value_vars=['init_time', 'search_time', 'join_time'],
+                        var_name='time_type',
+                        value_name='time_value')
+
+    # Create violin plot
+    fig = px.violin(df_melted,
+                    x='time_type',
+                    y='time_value',
+                    color='time_type',
+                    box=True,  # Show box plot inside violin
+                    points='all',  # Show all points
+                    title='Time Distribution by Type',
+                    labels={'time_type': 'Time Type', 'time_value': 'Time (units)'})
+
+    # Customize layout
+    fig.update_layout(
+        xaxis_title='Time Type',
+        yaxis_title='Time Value',
+        showlegend=False
+    )
+
+    # Show plot
+    fig.show()
+
+
+def box_plot(df: pd.DataFrame):
+    # Create a figure with subplots to show both box and individual points
+    fig = make_subplots(rows=1, cols=3,
+                        subplot_titles=('Init Time', 'Search Time', 'Join Time'),
+                        shared_yaxes=True)
+
+    # Add box plots
+    fig.add_trace(go.Box(y=df['init_time'], name='Init Time', boxpoints='all', jitter=0.3), 1, 1)
+    fig.add_trace(go.Box(y=df['search_time'], name='Search Time', boxpoints='all', jitter=0.3), 1, 2)
+    fig.add_trace(go.Box(y=df['join_time'], name='Join Time', boxpoints='all', jitter=0.3), 1, 3)
+
+    # Update layout
+    fig.update_layout(
+        title='Time Measurements for ESP32',
+        yaxis_title='Time (units)',
+        showlegend=False,
+        height=500
+    )
+
+    # Show plot
+    fig.show()
 
 
 def plot_scatter_message_continuous_with_annotations(df: pd.DataFrame):
@@ -422,8 +527,6 @@ def plot_scatter_message_readable(df: pd.DataFrame):
 
     df['message_readable'] = df.apply(map_message, axis=1)
 
-
-
     # Create scatter plot
     fig = px.scatter(
         df,
@@ -509,6 +612,7 @@ def plot_scatter_message_readable(df: pd.DataFrame):
     )
 
     fig.show()
+
 
 def plot_box_inference_time(df: pd.DataFrame):
     # Box plot without points and without outliers
@@ -728,5 +832,3 @@ def create_message_hierarchy_sunburst(df, metrics):
 
     fig.show()
     return fig
-
-

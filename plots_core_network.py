@@ -7,6 +7,7 @@ import plotly
 import plotly.colors as pc
 
 from app_common import *
+from unused_plots import *
 
 import plotly.graph_objects as go
 from networkx.algorithms.bipartite.basic import color
@@ -81,55 +82,6 @@ def get_dfs():
     return join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,message_continuous_df_filter,delay_df
 
 
-def plot_violin(df: pd.DataFrame):
-    # Melt the DataFrame to long format for plotting
-    df_melted = df.melt(id_vars=['type'],
-                        value_vars=['init_time', 'search_time', 'join_time'],
-                        var_name='time_type',
-                        value_name='time_value')
-
-    # Create violin plot
-    fig = px.violin(df_melted,
-                    x='time_type',
-                    y='time_value',
-                    color='time_type',
-                    box=True,  # Show box plot inside violin
-                    points='all',  # Show all points
-                    title='Time Distribution by Type',
-                    labels={'time_type': 'Time Type', 'time_value': 'Time (units)'})
-
-    # Customize layout
-    fig.update_layout(
-        xaxis_title='Time Type',
-        yaxis_title='Time Value',
-        showlegend=False
-    )
-
-    # Show plot
-    fig.show()
-
-
-def box_plot(df: pd.DataFrame):
-    # Create a figure with subplots to show both box and individual points
-    fig = make_subplots(rows=1, cols=3,
-                        subplot_titles=('Init Time', 'Search Time', 'Join Time'),
-                        shared_yaxes=True)
-
-    # Add box plots
-    fig.add_trace(go.Box(y=df['init_time'], name='Init Time', boxpoints='all', jitter=0.3), 1, 1)
-    fig.add_trace(go.Box(y=df['search_time'], name='Search Time', boxpoints='all', jitter=0.3), 1, 2)
-    fig.add_trace(go.Box(y=df['join_time'], name='Join Time', boxpoints='all', jitter=0.3), 1, 3)
-
-    # Update layout
-    fig.update_layout(
-        title='Time Measurements for ESP32',
-        yaxis_title='Time (units)',
-        showlegend=False,
-        height=500
-    )
-
-    # Show plot
-    fig.show()
 
 
 def plot_bar_states_mean_pdevice(df):
@@ -521,7 +473,6 @@ def plot_mean_messages(df: pd.DataFrame):
     fig_pie_bytes.show()
 
 
-
 def plot_scatter_message_continuous(df: pd.DataFrame):
     # Convert timestamp to relative seconds (starting from 0)
     first_timestamp = df['timestamp'].iloc[0]
@@ -683,10 +634,6 @@ def calculate_mean_delay(df: pd.DataFrame):
 
 
 
-
-
-
-
 if __name__ == '__main__':
     join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,message_continuous_df_filter,delay_df= get_dfs()
 
@@ -696,6 +643,18 @@ if __name__ == '__main__':
     #     print(message_interval_df)
     #     print(message_continuous_df)
     #     print(delay_df)
+
+    type_counts = join_times_df['type'].value_counts()
+    print("Device Type Init State Counts:")
+    print("===================")
+    for device_type, count in type_counts.items():
+        print(f"{device_type}: {count} occurrences")
+
+    recovery_counts = parent_recovery_df['type'].value_counts()
+    print("Device Type Parent Recovery State Counts:")
+    print("===================")
+    for device_type, count in recovery_counts.items():
+        print(f"{device_type}: {count} occurrences")
 
     #figures = plot_bar_states_mean_pdevice(join_times_df)
 
@@ -713,8 +672,10 @@ if __name__ == '__main__':
 
     #calculate_mean_delay(delay_df)
 
-    analyze_message_metrics(message_continuous_df_filter)
+    #analyze_message_metrics(message_continuous_df_filter)
 
+    #box_plot_with_3_devices_by_state(join_times_df)
 
+    #box_plot_parent_recovery_by_device(parent_recovery_df)
 
 

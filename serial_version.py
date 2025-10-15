@@ -11,7 +11,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import threading
 
-COM = 'COM4'
+COM = 'COM3'
 arduino = serial.Serial(port=COM, baudrate=115200, timeout=.1)
 
 GRAPH_FILE = "graph.json"
@@ -188,6 +188,7 @@ def read_serial():
     # arduino.write(bytes(x, 'utf-8'))
     print(f"Listening for serial on {COM}...")
     time.sleep(2)
+
     arduino.write(b'\r\n')
     while True:
         # time.sleep(0.05)
@@ -207,6 +208,10 @@ def read_serial():
 
                         case ['8', '0', node_IP, parent_IP]:  # New node message
                             G = load_graph()
+                            # Remove the node only if it exists
+                            if node_IP in G:
+                                G.remove_node(node_IP)
+
                             G.add_node(node_IP)
                             if parent_IP != "0.0.0.0":
                                 G.add_edge(parent_IP, node_IP)
@@ -215,7 +220,8 @@ def read_serial():
 
                         case ['8', '1', node_IP]:  # Deleted node message
                             G = load_graph()
-                            G.remove_node(node_IP)
+                            if node_IP in G:
+                                G.remove_node(node_IP)
                             save_graph(G)
                             pass
 
@@ -239,7 +245,7 @@ def read_serial():
 
 
                         case ['8', '5',device_type,node_ip,monitoring_time,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
-                              n_app,bytes_app,n_monitoring,bytes_monitoring]:  # Reporting the messages received fom each layer
+                              n_app,bytes_app,n_monitoring,bytes_monitoring]:  # Reporting the messages received from each layer
 
                             message_metrics.append(dict(
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
