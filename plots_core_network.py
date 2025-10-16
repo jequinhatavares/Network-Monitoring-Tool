@@ -318,6 +318,194 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
     )
 
 
+def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
+    states = ['init_time', 'search_time', 'join_time']
+    state_labels = {
+        'init_time': 'Init State',
+        'search_time': 'Search State',
+        'join_time': 'Join State'
+    }
+
+    state_colors = {
+        'init_time': px.colors.qualitative.Plotly[0],  # blue
+        'search_time': px.colors.qualitative.Plotly[1],  # orange
+        'join_time': px.colors.qualitative.Plotly[2]  # green
+    }
+
+    devices = ['ESP8266', 'ESP32', 'RPI']
+
+    # Calculate mean times, percentages, and std
+    results = []
+    for device in devices:
+        device_df = df[df["type"] == device]
+        device_means = {}
+        total_time = 0
+
+        for state in states:
+            mean_time_seconds = device_df[state].mean() / 1000
+            device_means[state] = mean_time_seconds
+            total_time += mean_time_seconds
+
+        for state in states:
+            device_means[f'{state}_pct'] = (device_means[state] / total_time) * 100
+
+        device_means['device'] = device
+        device_means['total_time'] = total_time
+
+        total_times = (device_df[states].sum(axis=1)) / 1000.0
+        device_means['total_std'] = total_times.std()
+
+        results.append(device_means)
+
+    fig = go.Figure()
+
+    # Add stacked bars
+    for state in states:
+        state_means = [result[state] for result in results]
+        state_percentages = [result[f'{state}_pct'] for result in results]
+
+        text_annotations = []
+        for pct in state_percentages:
+            if pct > 5:
+                text_annotations.append(f'{pct:.1f}%')
+            else:
+                text_annotations.append('')
+
+        fig.add_trace(go.Bar(
+            x=devices,
+            y=state_means,
+            name=state_labels[state],
+            marker_color=state_colors[state],
+            marker_line=dict(width=2, color='white'),
+            text=text_annotations,
+            textposition='inside',
+            textfont=dict(color='black', family='Helvetica', weight='bold', size=12),
+            hovertemplate=(
+                f"<b>{state_labels[state]}</b><br>"
+                "Time: %{y:.3f}s<br>"
+                "Percentage: %{customdata:.1f}%<extra></extra>"
+            ),
+            customdata=state_percentages,
+            width=0.8
+        ))
+
+    # Compute cumulative heights to know where join state ends
+    cumulative_heights = {device: [] for device in devices}
+    for i, device in enumerate(devices):
+        height = 0
+        for state in states:
+            height += results[i][state]
+            cumulative_heights[device].append(height)
+
+    total_times = [result['total_time'] for result in results]
+    std_values = [result['total_std'] for result in results]
+
+    # The top of the join state for each device
+    top_of_join = [cumulative_heights[device][-1] for device in devices]
+
+    # Add standard deviation bars slightly above join state
+    for i, (device, total_time, std, top_height) in enumerate(zip(devices, total_times, std_values, top_of_join)):
+        # Add small absolute offset to avoid overlap with join state label
+        offset = 0.05 * total_time if total_time > 1 else 0.02  # scale offset with bar height
+        error_bar_base = top_height + offset
+
+        fig.add_trace(go.Scatter(
+            x=[device, device],
+            y=[error_bar_base, error_bar_base + std * 2],
+            mode='lines',
+            line=dict(color='grey', width=3),
+            name='Std Dev' if i == 0 else '',
+            showlegend=i == 0,
+            hovertemplate=(
+                "<b>Standard Deviation</b><br>"
+                "Device: %{x}<br>"
+                "Std Dev: ±%{customdata:.3f}s<extra></extra>"
+            ),
+            customdata=[std]
+        ))
+
+        cap_width = 0.15
+        fig.add_trace(go.Scatter(
+            x=[device - cap_width, device + cap_width],
+            y=[error_bar_base, error_bar_base],
+            mode='lines',
+            line=dict(color='grey', width=3),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=[device - cap_width, device + cap_width],
+            y=[error_bar_base + std * 2, error_bar_base + std * 2],
+            mode='lines',
+            line=dict(color='grey', width=3),
+            showlegend=False,
+            hoverinfo='skip'
+        ))
+
+    # Layout
+    fig.update_layout(
+        title={
+            'text': 'Network Integration Time by Device',
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': dict(family='Helvetica', size=20, color='black')
+        },
+        xaxis_title='Device',
+        yaxis_title='Time (s)',
+        barmode='stack',
+        font=dict(family='Helvetica', size=15),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(t=120, b=60, l=60, r=60),
+        legend=dict(
+            font=dict(family='Helvetica', size=16),
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='center',
+            x=0.5
+        )
+    )
+
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black")
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray'
+    )
+
+    # Total time annotations
+    max_total_time = max(total_times)
+    max_std = max(std_values)
+    annotation_base = max_total_time * 1.15 + max_std * 2
+
+    for i, device in enumerate(devices):
+        total_time = results[i]['total_time']
+        total_std = results[i]['total_std']
+        fig.add_annotation(
+            x=device,
+            y=annotation_base,
+            text=f'Total: {total_time:.2f}s<br>Std: ±{total_std:.2f}s',
+            showarrow=False,
+            font=dict(family='Helvetica', size=13, weight='bold', color='black'),
+            yshift=5,
+            align='center'
+        )
+
+    fig.show()
+
+    fig.write_image(
+        "images/core_network/init_device_comparison.png",
+        width=761,
+        height=599,
+        scale=1  # multiplies the base resolution
+    )
+
 def parent_recovery_bar_plot(df: pd.DataFrame):
     # Calculate mean recovery time by device type
     # Convert milliseconds to seconds
@@ -670,6 +858,8 @@ if __name__ == '__main__':
     # figures["ESP32"].show()
     # figures["RPI"].show()
     #stacked_bar_plot_integration_time(join_times_df)
+
+    stacked_bar_plot_integration_time_std(join_times_df)
 
     #parent_recovery_bar_plot(parent_recovery_df)
 
