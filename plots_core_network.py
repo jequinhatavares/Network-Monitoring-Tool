@@ -314,7 +314,7 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
         "images/core_network/init_device_comparison.png",
         width=761,
         height=599,
-        scale=1  # multiplies the base resolution
+        scale=3  # multiplies the base resolution
     )
 
 
@@ -755,14 +755,17 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
 
 
 def calculate_mean_delay(df: pd.DataFrame):
-    hop_count_sum = df["hop_count"].values.sum()
-    latency_sum = df["latency"].values.sum()
-    mean_latency = latency_sum/hop_count_sum
+    # Overall mean RTT per hop (global)
+    hop_count_sum = df["hop_count"].sum()
+    rtt_sum = df["latency"].sum()
+    mean_rtt_per_hop = rtt_sum / hop_count_sum
 
-    min_latency = df.min(axis=0)["latency_per_hop"]
-    max_latency = df.max(axis=0)["latency_per_hop"]
+    # Per-sample RTT per hop
+    df["rtt_per_hop"] = df["latency"] / df["hop_count"]
 
-    df["latency_per_hop"] = df["latency"] / df["hop_count"]
+    # Range (optional)
+    min_rtt = df["rtt_per_hop"].min()
+    max_rtt = df["rtt_per_hop"].max()
 
     # Helper functions
     def mean_absolute_deviation(x):
@@ -779,33 +782,31 @@ def calculate_mean_delay(df: pd.DataFrame):
             return 0.0
         return (x > m + 2 * s).mean()
 
-    #print(df.head())
-
-
-    # Boxplot: distribution of latency per hop count
+    # Boxplot for RTT per hop distribution
     fig_box = px.box(
         df,
         x="hop_count",
-        y="latency",
-        points="all",  # shows all data points
+        y="rtt_per_hop",
+        points="all",
         hover_data=["node_ip"],
-        title="Latency distribution per hop count"
+        title="RTT per hop distribution"
     )
-    fig_box.show()
+    #fig_box.show()
 
-    # Group by hop_count and calculate key statistics
+    # Group by hop count
     summary = df.groupby("hop_count").agg(
-        mean_latency=("latency", "mean"),
-        std_latency=("latency", "std"),
-        jitter=("latency", mean_absolute_deviation),
-        p95_latency=("latency", lambda x: percentile(x, 95)),
-        count=("latency", "count"),
-        outlier_ratio=("latency", outlier_ratio)
+        mean_rtt=("latency", "mean"),  # mean total RTT for N hops
+        std_rtt=("latency", "std"),
+        mean_rtt_per_hop=("rtt_per_hop", "mean"),
+        std_rtt_per_hop=("rtt_per_hop", "std"),
+        jitter=("rtt_per_hop", mean_absolute_deviation),
+        p95_rtt_per_hop=("rtt_per_hop", lambda x: percentile(x, 95)),
+        count=("rtt_per_hop", "count"),
+        outlier_ratio=("rtt_per_hop", outlier_ratio)
     ).reset_index()
 
-    print("=== Summary table ===")
+    print("=== RTT Summary per Hop ===")
     print(summary)
-
 
 
 if __name__ == '__main__':

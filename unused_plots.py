@@ -471,19 +471,19 @@ def violin_plot_parent_recovery_by_device_annotations(df: pd.DataFrame):
             bordercolor="black",
             borderwidth=1,
             borderpad=4,
-            font=dict(size=10, family="Helvetica"),
+            font=dict(size=12, family="Helvetica"),
             align="left",
             xanchor="left"  # Anchor text to left so it extends rightward
         )
 
     # Update layout
     fig.update_layout(
-        title='Parent Recovery Time by Device Type',
         yaxis_title='Recovery Time (s)',
         xaxis_title='Device Type',
         plot_bgcolor='white',
         paper_bgcolor='white',
-        legend_title_text='Device Types'
+        legend_title_text='Device Types',
+        showlegend=False,
     )
 
     # Customize fonts and grid
@@ -519,6 +519,13 @@ def violin_plot_parent_recovery_by_device_annotations(df: pd.DataFrame):
     )
 
     fig.show()
+
+    fig.write_image(
+        "images/core_network/violin_parent_recovery.png",
+        width=761,
+        height=599,
+        scale=3# multiplies the base resolution
+    )
 
 
 def bar_plot_with_3_devices_by_state(df: pd.DataFrame):

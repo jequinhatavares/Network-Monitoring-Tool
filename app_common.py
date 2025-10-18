@@ -104,7 +104,7 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
 
     fig2.update_layout(
         xaxis_title='Inference ID',
-        yaxis_title='Inference Time (ms)',
+        yaxis_title='Inference Duration (ms)',
         # title={
         #     'text': 'Inference Time Distribution',
         #     'x': 0.5,
