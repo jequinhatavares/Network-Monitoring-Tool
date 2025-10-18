@@ -327,14 +327,14 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
     }
 
     state_colors = {
-        'init_time': px.colors.qualitative.Plotly[0],  # blue
-        'search_time': px.colors.qualitative.Plotly[1],  # orange
-        'join_time': px.colors.qualitative.Plotly[2]  # green
+        'init_time': px.colors.qualitative.Plotly[0],  # Plotly blue
+        'search_time': px.colors.qualitative.Plotly[1],  # Plotly orange
+        'join_time': px.colors.qualitative.Plotly[2]  # Plotly green
     }
 
     devices = ['ESP8266', 'ESP32', 'RPI']
 
-    # Calculate mean times, percentages, and std
+    # Calculate mean times and percentages
     results = []
     for device in devices:
         device_df = df[df["type"] == device]
@@ -346,27 +346,30 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
             device_means[state] = mean_time_seconds
             total_time += mean_time_seconds
 
+        # Calculate percentages
         for state in states:
             device_means[f'{state}_pct'] = (device_means[state] / total_time) * 100
 
         device_means['device'] = device
         device_means['total_time'] = total_time
 
-        total_times = (device_df[states].sum(axis=1)) / 1000.0
+        # Calculate standard deviation of total integration time
+        total_times = (device_df[states].sum(axis=1)) / 1000.0  # Sum of init+search+join for each sample
         device_means['total_std'] = total_times.std()
 
         results.append(device_means)
 
+    # Create the stacked bar plot
     fig = go.Figure()
 
-    # Add stacked bars
     for state in states:
         state_means = [result[state] for result in results]
         state_percentages = [result[f'{state}_pct'] for result in results]
 
+        # Only show percentage if segment is large enough
         text_annotations = []
         for pct in state_percentages:
-            if pct > 5:
+            if pct > 5:  # Only show percentage if it's more than 5%
                 text_annotations.append(f'{pct:.1f}%')
             else:
                 text_annotations.append('')
@@ -376,88 +379,68 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
             y=state_means,
             name=state_labels[state],
             marker_color=state_colors[state],
-            marker_line=dict(width=2, color='white'),
+            marker_line=dict(width=2, color='white'),  # Add subtle border for definition
             text=text_annotations,
             textposition='inside',
-            textfont=dict(color='black', family='Helvetica', weight='bold', size=12),
+            textfont=dict(color='black', family='Helvetica', weight='bold', size=12),  # Black text for better contrast
             hovertemplate=(
-                f"<b>{state_labels[state]}</b><br>"
-                "Time: %{y:.3f}s<br>"
-                "Percentage: %{customdata:.1f}%<extra></extra>"
+                    f"<b>{state_labels[state]}</b><br>" +
+                    "Time: %{y:.3f}s<br>" +
+                    "Percentage: %{customdata:.1f}%<extra></extra>"
             ),
             customdata=state_percentages,
             width=0.8
         ))
 
-    # Compute cumulative heights to know where join state ends
-    cumulative_heights = {device: [] for device in devices}
-    for i, device in enumerate(devices):
-        height = 0
-        for state in states:
-            height += results[i][state]
-            cumulative_heights[device].append(height)
-
+    # Add vertical error bars for standard deviation on top of each bar
     total_times = [result['total_time'] for result in results]
     std_values = [result['total_std'] for result in results]
 
-    # The top of the join state for each device
-    top_of_join = [cumulative_heights[device][-1] for device in devices]
-
-    # Add standard deviation bars slightly above join state
-    for i, (device, total_time, std, top_height) in enumerate(zip(devices, total_times, std_values, top_of_join)):
-        # Add small absolute offset to avoid overlap with join state label
-        offset = 0.05 * total_time if total_time > 1 else 0.02  # scale offset with bar height
-        error_bar_base = top_height + offset
-
+    # Add error bars as a separate scatter trace with custom error bars
+    for i, (device, total_time, std) in enumerate(zip(devices, total_times, std_values)):
         fig.add_trace(go.Scatter(
-            x=[device, device],
-            y=[error_bar_base, error_bar_base + std * 2],
-            mode='lines',
-            line=dict(color='grey', width=3),
-            name='Std Dev' if i == 0 else '',
+            x=[device],
+            y=[total_time],
+            mode='markers',
+            marker=dict(
+                color='rgba(0,0,0,0)',  # Transparent marker
+                size=15,
+                symbol='line-ns-open',  # Vertical line symbol
+                line=dict(width=3, color='grey')
+            ),
+            error_y=dict(
+                type='data',
+                array=[std],
+                color='grey',
+                thickness=2.5,
+                width=8
+            ),
+            name='Std Dev' if i == 0 else '',  # Only show in legend once
             showlegend=i == 0,
             hovertemplate=(
-                "<b>Standard Deviation</b><br>"
-                "Device: %{x}<br>"
-                "Std Dev: ±%{customdata:.3f}s<extra></extra>"
+                    "<b>Standard Deviation</b><br>" +
+                    "Device: %{x}<br>" +
+                    "Mean Total: %{y:.3f}s<br>" +
+                    "Std Dev: ±%{customdata:.3f}s<extra></extra>"
             ),
             customdata=[std]
         ))
 
-        cap_width = 0.15
-        fig.add_trace(go.Scatter(
-            x=[device - cap_width, device + cap_width],
-            y=[error_bar_base, error_bar_base],
-            mode='lines',
-            line=dict(color='grey', width=3),
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=[device - cap_width, device + cap_width],
-            y=[error_bar_base + std * 2, error_bar_base + std * 2],
-            mode='lines',
-            line=dict(color='grey', width=3),
-            showlegend=False,
-            hoverinfo='skip'
-        ))
-
-    # Layout
+    # Clean layout
     fig.update_layout(
-        title={
-            'text': 'Network Integration Time by Device',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Network Integration Time by Device',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         xaxis_title='Device',
         yaxis_title='Time (s)',
         barmode='stack',
         font=dict(family='Helvetica', size=15),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=120, b=60, l=60, r=60),
+        margin=dict(t=60, b=60, l=60, r=60),
         legend=dict(
             font=dict(family='Helvetica', size=16),
             orientation='h',
@@ -468,6 +451,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
         )
     )
 
+    # Clean axes
     fig.update_xaxes(
         title_font=dict(family='Helvetica', size=18, color="Black"),
         tickfont=dict(family='Helvetica', size=16, color="Black")
@@ -479,17 +463,18 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
         gridcolor='lightgray'
     )
 
-    # Total time annotations
+    # Total time annotations - position them higher to be above the error bars
     max_total_time = max(total_times)
     max_std = max(std_values)
-    annotation_base = max_total_time * 1.15 + max_std * 2
+    # annotation_offset = max_total_time * 0.08 + max_std  # Dynamic offset based on data
+    annotation_offset = 0.6  # Dynamic offset based on data
 
     for i, device in enumerate(devices):
         total_time = results[i]['total_time']
         total_std = results[i]['total_std']
         fig.add_annotation(
             x=device,
-            y=annotation_base,
+            y=total_time + total_std + annotation_offset,
             text=f'Total: {total_time:.2f}s<br>Std: ±{total_std:.2f}s',
             showarrow=False,
             font=dict(family='Helvetica', size=13, weight='bold', color='black'),
