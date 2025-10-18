@@ -471,7 +471,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
 
     for i, device in enumerate(devices):
         total_time = results[i]['total_time']
-        total_std = results[i]['total_std']
+        total_std = results[i]['total_std'],
         fig.add_annotation(
             x=device,
             y=total_time + total_std + annotation_offset,
