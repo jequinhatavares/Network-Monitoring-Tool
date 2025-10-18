@@ -132,12 +132,12 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
         xaxis_title='Time Elapsed (seconds)',
         yaxis_title='Message Size (bytes)',
         legend_title='<b>Messages<b>',
-        title={
-            'text': 'Received Messages Over Time',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Received Messages Over Time',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         legend=dict(
             orientation="v",
             yanchor="top",

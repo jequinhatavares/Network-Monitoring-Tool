@@ -154,13 +154,13 @@ def plot_bar_states_mean_pdevice(df):
             xaxis_title="State",
             showlegend=False,
             xaxis={'categoryorder': 'array', 'categoryarray': [state_labels[s] for s in state_order]},
-            title={
-                'text': f"Mean State Times for {device}",
-                'x': 0.5,
-                'xanchor': 'center',
-                'yanchor': 'top',
-                'font': {'size': 20, 'family': 'Helvetica', 'color': 'black'}
-            },
+            # title={
+            #     'text': f"Mean State Times for {device}",
+            #     'x': 0.5,
+            #     'xanchor': 'center',
+            #     'yanchor': 'top',
+            #     'font': {'size': 20, 'family': 'Helvetica', 'color': 'black'}
+            # },
             plot_bgcolor='white',
             # paper_bgcolor='white',
         )
@@ -262,19 +262,19 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
 
     # Clean layout
     fig.update_layout(
-        title={
-            'text': 'Network Integration Time by Device',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Network Integration Time by Device',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         xaxis_title='Device',
         yaxis_title='Time (s)',
         barmode='stack',
         font=dict(family='Helvetica', size=15),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=100, b=60, l=60, r=60),  # Increased top margin for higher annotations
+        margin=dict(t=60, b=60, l=60, r=60),  # Increased top margin for higher annotations
         legend=dict(
             font=dict(family='Helvetica', size=16),
             orientation='h',
@@ -415,8 +415,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
                 thickness=2.5,
                 width=8
             ),
-            name='Std Dev' if i == 0 else '',  # Only show in legend once
-            showlegend=i == 0,
+            showlegend=False,  # <-- hide from legend
             hovertemplate=(
                     "<b>Standard Deviation</b><br>" +
                     "Device: %{x}<br>" +
@@ -471,7 +470,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
 
     for i, device in enumerate(devices):
         total_time = results[i]['total_time']
-        total_std = results[i]['total_std'],
+        total_std = results[i]['total_std']
         fig.add_annotation(
             x=device,
             y=total_time + total_std + annotation_offset,
@@ -490,6 +489,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
         height=599,
         scale=1  # multiplies the base resolution
     )
+
 
 def parent_recovery_bar_plot(df: pd.DataFrame):
     # Calculate mean recovery time by device type
@@ -528,12 +528,12 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
 
     # Update layout with Helvetica font
     fig.update_layout(
-        title={
-            'text': 'Mean Parent Recovery Time by Device Type',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica',size=20, color='black')
-        },
+        # title={
+        #     'text': 'Mean Parent Recovery Time by Device Type',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica',size=20, color='black')
+        # },
         font_family='Helvetica',
         title_font_family='Helvetica',
         xaxis_title='Device',
@@ -696,12 +696,12 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
         xaxis_title='Time Elapsed (seconds)',
         yaxis_title='Message Size (bytes)',
         legend_title='Message Types',
-        title={
-            'text': 'Received Messages Over Time',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Received Messages Over Time',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
 
         legend=dict(
             orientation="v",

@@ -55,18 +55,18 @@ def box_plot_with_3_devices_by_state(df: pd.DataFrame):
 
     # Update layout
     fig.update_layout(
-        title={
-            'text': 'Device Performance by State',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': title_font
-        },
+        # title={
+        #     'text': 'Device Performance by State',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': title_font
+        # },
         font=font_settings,
         boxmode='group',
         legend={'font': tick_font},
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=80, b=60, l=60, r=60)
+        margin=dict(t=60, b=60, l=60, r=60)
     )
 
     # Update all y-axes
@@ -133,18 +133,18 @@ def violin_plot_with_3_devices_by_state(df: pd.DataFrame):
 
     # Update layout
     fig.update_layout(
-        title={
-            'text': 'Device Performance by State',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': title_font
-        },
+        # title={
+        #     'text': 'Device Performance by State',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': title_font
+        # },
         font=font_settings,
         violinmode='group',  # Changed from boxmode to violinmode
         legend={'font': tick_font},
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=80, b=60, l=60, r=60)
+        margin=dict(t=60, b=60, l=60, r=60)
     )
 
     # Update all y-axes
@@ -214,18 +214,18 @@ def violin_plot_with_3_devices_by_state_log(df: pd.DataFrame):
 
     # Update layout
     fig.update_layout(
-        title={
-            'text': 'Device Performance by State',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': title_font
-        },
+        # title={
+        #     'text': 'Device Performance by State',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': title_font
+        # },
         font=font_settings,
         violinmode='group',  # Changed from boxmode to violinmode
         legend={'font': tick_font},
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=80, b=60, l=60, r=60)
+        margin=dict(t=60, b=60, l=60, r=60)
     )
 
     # Update all y-axes with logarithmic scale (simple version)
@@ -296,18 +296,18 @@ def violin_plot_with_3_devices_by_two_states(df: pd.DataFrame):
 
     # Update layout
     fig.update_layout(
-        title={
-            'text': 'Device Performance by State',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': title_font
-        },
+        # title={
+        #     'text': 'Device Performance by State',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': title_font
+        # },
         font=font_settings,
         violinmode='group',
         legend={'font': tick_font},
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=80, b=60, l=60, r=60)
+        margin=dict(t=60, b=60, l=60, r=60)
     )
 
     # Update y-axes for both subplots
@@ -593,20 +593,20 @@ def bar_plot_with_3_devices_by_state(df: pd.DataFrame):
     legend_font = dict(family='Helvetica', size=12, color='black')
 
     fig.update_layout(
-        title={
-            'text': 'Device Integration Time Breakdown',
-            'x': 0.5,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': title_font
-        },
+        # title={
+        #     'text': 'Device Integration Time Breakdown',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'yanchor': 'top',
+        #     'font': title_font
+        # },
         xaxis_title='Device',
         yaxis_title='Time (seconds)',
         barmode='stack',
         font=dict(family='Helvetica', size=12),
         plot_bgcolor='white',
         paper_bgcolor='white',
-        margin=dict(t=100, b=60, l=60, r=60),
+        margin=dict(t=60, b=60, l=60, r=60),
         legend={
             'font': legend_font,
             'orientation': 'h',
@@ -763,12 +763,12 @@ def plot_scatter_message_continuous_with_annotations(df: pd.DataFrame):
         xaxis_title='Time Elapsed (seconds)',
         yaxis_title='Message Size (bytes)',
         legend_title='Message Types',
-        title={
-            'text': 'Network Message Analysis: Received Messages Over Time',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Network Message Analysis: Received Messages Over Time',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         legend=dict(
             orientation="v",
             yanchor="top",
@@ -940,12 +940,12 @@ def plot_scatter_message_readable(df: pd.DataFrame):
         xaxis_title='Time Elapsed (seconds)',
         yaxis_title='Message Size (bytes)',
         legend_title='Message Type / Subtype',
-        title={
-            'text': 'Network Messages Over Time',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Network Messages Over Time',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         legend=dict(
             orientation="v",
             yanchor="top",
@@ -1204,14 +1204,14 @@ def create_message_hierarchy_sunburst(df, metrics):
     ))
 
     fig.update_layout(
-        title={
-            'text': "<b>Message Distribution Hierarchy</b><br><sub>Types with <5% grouped into 'Other'</sub>",
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': {'size': 18}
-        },
+        # title={
+        #     'text': "<b>Message Distribution Hierarchy</b><br><sub>Types with <5% grouped into 'Other'</sub>",
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': {'size': 18}
+        # },
         height=700,
-        margin=dict(t=100, l=0, r=0, b=0),
+        #margin=dict(t=100, l=0, r=0, b=0),
         paper_bgcolor='white'
     )
 

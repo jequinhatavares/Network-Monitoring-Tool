@@ -11,7 +11,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import threading
 
-COM = 'COM3'
+COM = 'COM4'
 arduino = serial.Serial(port=COM, baudrate=115200, timeout=.1)
 
 GRAPH_FILE = "graph.json"

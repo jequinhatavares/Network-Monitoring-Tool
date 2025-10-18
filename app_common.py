@@ -105,12 +105,12 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
     fig2.update_layout(
         xaxis_title='Inference ID',
         yaxis_title='Inference Time (ms)',
-        title={
-            'text': 'Inference Time Distribution',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Inference Time Distribution',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         plot_bgcolor='white',
         coloraxis_colorbar=dict(title="Time (ms)")
     )
@@ -390,12 +390,12 @@ def create_throughput_bar_plot(df, metrics, save_path: str, show_plot=False):
         ))
 
     fig.update_layout(
-        title={
-            'text': 'Throughput by Message Category',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Throughput by Message Category',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         xaxis_title="Message Category",
         yaxis_title="Throughput (B/s)",
         showlegend=False,  # Since we're using colored bars with labels, legend isn't needed
@@ -457,12 +457,12 @@ def create_four_category_pie(df, save_path: str, show_plot=False):
     )])
 
     fig.update_layout(
-        title={
-            'text': 'Message Distribution',
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': dict(family='Helvetica', size=20, color='black')
-        },
+        # title={
+        #     'text': 'Message Distribution',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
         showlegend=False,
     )
 
