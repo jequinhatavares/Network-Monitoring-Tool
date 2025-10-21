@@ -320,7 +320,7 @@ def stacked_bar_plot_integration_time(df: pd.DataFrame):
     )
 
 
-def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
+def stacked_bar_plot_integration_time_ci(df: pd.DataFrame):
     states = ['init_time', 'search_time', 'join_time']
     state_labels = {
         'init_time': 'Init State',
@@ -479,6 +479,177 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
         scale=1
     )
 
+def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
+    states = ['init_time', 'search_time', 'join_time']
+    state_labels = {
+        'init_time': 'Init State',
+        'search_time': 'Search State',
+        'join_time': 'Join State'
+    }
+
+    state_colors = {
+        'init_time': px.colors.qualitative.Plotly[0],  # Plotly blue
+        'search_time': px.colors.qualitative.Plotly[1],  # Plotly orange
+        'join_time': px.colors.qualitative.Plotly[2]  # Plotly green
+    }
+
+    devices = ['ESP8266', 'ESP32', 'RPI']
+
+    # Calculate mean times and percentages
+    results = []
+    for device in devices:
+        device_df = df[df["type"] == device]
+        device_means = {}
+        total_time = 0
+
+        for state in states:
+            mean_time_seconds = device_df[state].mean() / 1000
+            device_means[state] = mean_time_seconds
+            total_time += mean_time_seconds
+
+        # Calculate percentages
+        for state in states:
+            device_means[f'{state}_pct'] = (device_means[state] / total_time) * 100
+
+        device_means['device'] = device
+        device_means['total_time'] = total_time
+
+        # Calculate standard deviation of total integration time
+        total_times = (device_df[states].sum(axis=1)) / 1000.0  # Sum of init+search+join for each sample
+        device_means['total_std'] = total_times.std()
+
+        results.append(device_means)
+
+    # Create the stacked bar plot
+    fig = go.Figure()
+
+    for state in states:
+        state_means = [result[state] for result in results]
+        state_percentages = [result[f'{state}_pct'] for result in results]
+
+        # Only show percentage if segment is large enough
+        text_annotations = []
+        for pct in state_percentages:
+            if pct > 5:  # Only show percentage if it's more than 5%
+                text_annotations.append(f'{pct:.1f}%')
+            else:
+                text_annotations.append('')
+
+        fig.add_trace(go.Bar(
+            x=devices,
+            y=state_means,
+            name=state_labels[state],
+            marker_color=state_colors[state],
+            marker_line=dict(width=2, color='white'),  # Add subtle border for definition
+            text=text_annotations,
+            textposition='inside',
+            textfont=dict(color='black', family='Helvetica', weight='bold', size=12),  # Black text for better contrast
+            hovertemplate=(
+                    f"<b>{state_labels[state]}</b><br>" +
+                    "Time: %{y:.3f}s<br>" +
+                    "Percentage: %{customdata:.1f}%<extra></extra>"
+            ),
+            customdata=state_percentages,
+            width=0.8
+        ))
+
+    # Add vertical error bars for standard deviation on top of each bar
+    total_times = [result['total_time'] for result in results]
+    std_values = [result['total_std'] for result in results]
+
+    # Add error bars as a separate scatter trace with custom error bars
+    for i, (device, total_time, std) in enumerate(zip(devices, total_times, std_values)):
+        fig.add_trace(go.Scatter(
+            x=[device],
+            y=[total_time],
+            mode='markers',
+            marker=dict(
+                color='rgba(0,0,0,0)',  # Transparent marker
+                size=15,
+                symbol='line-ns-open',  # Vertical line symbol
+                line=dict(width=3, color='grey')
+            ),
+            error_y=dict(
+                type='data',
+                array=[std],
+                color='grey',
+                thickness=2.5,
+                width=8
+            ),
+            showlegend=False,  # <-- hide from legend
+            hovertemplate=(
+                    "<b>Standard Deviation</b><br>" +
+                    "Device: %{x}<br>" +
+                    "Mean Total: %{y:.3f}s<br>" +
+                    "Std Dev: ±%{customdata:.3f}s<extra></extra>"
+            ),
+            customdata=[std]
+        ))
+
+    # Clean layout
+    fig.update_layout(
+        # title={
+        #     'text': 'Network Integration Time by Device',
+        #     'x': 0.5,
+        #     'xanchor': 'center',
+        #     'font': dict(family='Helvetica', size=20, color='black')
+        # },
+        xaxis_title='Device',
+        yaxis_title='Time (s)',
+        barmode='stack',
+        font=dict(family='Helvetica', size=15),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        margin=dict(t=60, b=60, l=60, r=60),
+        legend=dict(
+            font=dict(family='Helvetica', size=16),
+            orientation='h',
+            yanchor='bottom',
+            y=1.02,
+            xanchor='center',
+            x=0.5
+        )
+    )
+
+    # Clean axes
+    fig.update_xaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black")
+    )
+
+    fig.update_yaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray'
+    )
+
+    # Total time annotations - position them higher to be above the error bars
+    max_total_time = max(total_times)
+    max_std = max(std_values)
+    # annotation_offset = max_total_time * 0.08 + max_std  # Dynamic offset based on data
+    annotation_offset = 0.6  # Dynamic offset based on data
+
+    for i, device in enumerate(devices):
+        total_time = results[i]['total_time']
+        total_std = results[i]['total_std']
+        fig.add_annotation(
+            x=device,
+            y=total_time + total_std + annotation_offset,
+            text=f'Total: {total_time:.2f}s<br>Std: ±{total_std:.2f}s',
+            showarrow=False,
+            font=dict(family='Helvetica', size=13, weight='bold', color='black'),
+            yshift=5,
+            align='center'
+        )
+
+    fig.show()
+
+    fig.write_image(
+        "images/core_network/init_device_comparison.png",
+        width=761,
+        height=599,
+        scale=1  # multiplies the base resolution
+    )
 
 def parent_recovery_bar_plot(df: pd.DataFrame):
     # Calculate mean recovery time by device type
@@ -744,7 +915,7 @@ def plot_scatter_message_continuous(df: pd.DataFrame):
 
 
 def calculate_mean_delay(df: pd.DataFrame):
-    # Compute RTT per hop
+    # Compute RTT per hop (kept in milliseconds)
     df["rtt_per_hop"] = df["latency"] / df["hop_count"]
 
     # Helper functions
@@ -771,19 +942,20 @@ def calculate_mean_delay(df: pd.DataFrame):
     summary = df.groupby("hop_count").agg(
         mean_rtt_per_hop=("rtt_per_hop", "mean"),
         std_rtt_per_hop=("rtt_per_hop", "std"),
+        ci_95_rtt_per_hop=("rtt_per_hop", ci_95),
         jitter=("rtt_per_hop", mean_absolute_deviation),
         p95_rtt_per_hop=("rtt_per_hop", lambda x: percentile(x, 95)),
         count=("rtt_per_hop", "count"),
-        outlier_ratio=("rtt_per_hop", outlier_ratio),
-        ci_95_rtt_per_hop=("rtt_per_hop", ci_95)
+        outlier_ratio=("rtt_per_hop", outlier_ratio)
     ).reset_index()
 
-    # Add confidence level for clarity
+    # Add explicit confidence level for clarity
     summary["confidence_level"] = "95%"
 
-    print("=== RTT per Hop Summary (with 95% CI) ===")
+    print("=== RTT per Hop Summary (with Std and 95% CI) ===")
     print(summary)
 
+    return summary
 
 if __name__ == '__main__':
     join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,message_continuous_df_filter,delay_df= get_dfs()
@@ -821,7 +993,7 @@ if __name__ == '__main__':
     # figures["RPI"].show()
     #stacked_bar_plot_integration_time(join_times_df)
 
-    #stacked_bar_plot_integration_time_std(join_times_df)
+    stacked_bar_plot_integration_time_std(join_times_df)
 
     #parent_recovery_bar_plot(parent_recovery_df)
 
@@ -829,7 +1001,7 @@ if __name__ == '__main__':
 
     #plot_scatter_message_continuous(message_continuous_df)
 
-    calculate_mean_delay(delay_df)
+    #calculate_mean_delay(delay_df)
 
     #analyze_message_metrics(message_continuous_df_filter)
 
