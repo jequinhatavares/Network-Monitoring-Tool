@@ -63,7 +63,8 @@ def get_dfs():
          'monitoring_bytes_count': 'int32'})
 
     runs = []
-    with open('logs/core_network/run-continuous-messages-0.json', 'r') as f:
+    #Antes das alterações ao routing- logs/core_network/run-continuous-messages-0.json
+    with open('logs/core_network/run-continuous-messages-26.json', 'r') as f:
         runs += json.load(f)
     message_continuous_df = pd.DataFrame(runs)
     message_continuous_df = message_continuous_df.astype(
@@ -993,7 +994,7 @@ if __name__ == '__main__':
     # figures["RPI"].show()
     #stacked_bar_plot_integration_time(join_times_df)
 
-    stacked_bar_plot_integration_time_std(join_times_df)
+    #stacked_bar_plot_integration_time_std(join_times_df)
 
     #parent_recovery_bar_plot(parent_recovery_df)
 

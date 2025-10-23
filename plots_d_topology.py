@@ -198,9 +198,10 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
 
 
 if __name__ == '__main__':
-    show_plots = False
-
-    app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_topology", 2)
+    show_plots = True
+    #nRun before 2
+    nRun=27
+    app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_topology", nRun)
 
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', None,
     #                        'display.max_colwidth', None):
@@ -208,7 +209,8 @@ if __name__ == '__main__':
     #     print(app_inference_df)
     #     print(message_continuous_df)
 
-    clean_df(message_continuous_df)
+    if(nRun==2):
+        clean_df(message_continuous_df)
 
     results = analyze_message_metrics(message_continuous_df)
 
@@ -216,7 +218,7 @@ if __name__ == '__main__':
 
     plot_scatter_inference_time(app_inference_df, "images/nn_topology/inference_time_d_nn_12_topology.png", show_plots)
 
-    create_throughput_bar_plot(message_continuous_df, results, "images/nn_topology/throughput_d_nn_12_topology.png", show_plots)
+    #create_throughput_bar_plot(message_continuous_df, results, "images/nn_topology/throughput_d_nn_12_topology.png", show_plots)
 
-    create_four_category_pie(message_continuous_df, "images/nn_topology/messages_pie_d_nn_12_topology.png", show_plots)
+    #create_four_category_pie(message_continuous_df, "images/nn_topology/messages_pie_d_nn_12_topology.png", show_plots)
 

@@ -194,8 +194,10 @@ def plot_scatter_message_continuous2(df: pd.DataFrame,show_plot):
 
 
 if __name__ == '__main__':
-    show_plots = False
-    app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_pub_sub", 0)
+    show_plots = True
+    #Before change in routing updates = 0
+    nRun=26
+    app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_pub_sub", nRun)
 
     # with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', None,
     #                        'display.max_colwidth', None):
@@ -203,7 +205,8 @@ if __name__ == '__main__':
     #     print(app_inference_df)
     #     print(message_continuous_df)
 
-    clean_df(message_continuous_df)
+    if(nRun == 0):
+        clean_df(message_continuous_df)
 
     results = analyze_message_metrics(message_continuous_df)
 
@@ -211,7 +214,7 @@ if __name__ == '__main__':
 
     plot_scatter_inference_time(app_inference_df, "images/nn_pubsub/inference_time_d_nn_12_pubsub.png", show_plots)
 
-    create_throughput_bar_plot(message_continuous_df, results, "images/nn_pubsub/throughput_d_nn_12_pubsub.png", show_plots)
+    #create_throughput_bar_plot(message_continuous_df, results, "images/nn_pubsub/throughput_d_nn_12_pubsub.png", show_plots)
 
-    create_four_category_pie(message_continuous_df, "images/nn_pubsub/messages_pie_d_nn_12_pubsub.png", show_plots)
+    #create_four_category_pie(message_continuous_df, "images/nn_pubsub/messages_pie_d_nn_12_pubsub.png", show_plots)
 
