@@ -1000,11 +1000,11 @@ if __name__ == '__main__':
 
     #plot_mean_messages(message_interval_df)
 
-    #plot_scatter_message_continuous(message_continuous_df)
+    plot_scatter_message_continuous(message_continuous_df)
 
     #calculate_mean_delay(delay_df)
 
-    #analyze_message_metrics(message_continuous_df_filter)
+    analyze_message_metrics(message_continuous_df_filter)
 
     #box_plot_with_3_devices_by_state(join_times_df)
 
@@ -1012,6 +1012,6 @@ if __name__ == '__main__':
 
     #box_plot_parent_recovery_by_device(parent_recovery_df)
 
-    #violin_plot_parent_recovery_by_device_annotations(parent_recovery_df)
+    violin_plot_parent_recovery_by_device_annotations(parent_recovery_df)
 
 

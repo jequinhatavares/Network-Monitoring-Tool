@@ -117,17 +117,17 @@ def update_graph(n):
     return get_graph_figure(G)
 
 MESSAGE_TYPE_NAMES = {
-    0: "PARENT_DISCOVERY_REQUEST",
-    1: "PARENT_INFO_RESPONSE",
-    2: "CHILD_REGISTRATION_REQUEST",
-    3: "FULL_ROUTING_TABLE_UPDATE",
-    4: "PARTIAL_ROUTING_TABLE_UPDATE",
+    0: "FULL_ROUTING_TABLE_UPDATE",
+    1: "PARTIAL_ROUTING_TABLE_UPDATE",
+    2: "PARENT_DISCOVERY_REQUEST",
+    3: "PARENT_INFO_RESPONSE",
+    4: "CHILD_REGISTRATION_REQUEST",
     5: "TOPOLOGY_BREAK_ALERT",
     6: "TOPOLOGY_RESTORED_NOTICE",
     7: "PARENT_RESET_NOTIFICATION",
-    8: "MONITORING_MESSAGE",
+    8: "MIDDLEWARE_MESSAGE",
     9: "DATA_MESSAGE",
-    10: "MIDDLEWARE_MESSAGE"
+    10: "MONITORING_MESSAGE",
 }
 
 # Mapping of neural network message subtypes
@@ -206,7 +206,7 @@ def read_serial():
 
                     match message.split():
 
-                        case ['8', '0', node_IP, parent_IP]:  # New node message
+                        case ['10', '0', node_IP, parent_IP]:  # New node message
                             G = load_graph()
                             # Remove the node only if it exists
                             if node_IP in G:
@@ -218,14 +218,14 @@ def read_serial():
                             save_graph(G)
                             pass
 
-                        case ['8', '1', node_IP]:  # Deleted node message
+                        case ['10', '1', node_IP]:  # Deleted node message
                             G = load_graph()
                             if node_IP in G:
                                 G.remove_node(node_IP)
                             save_graph(G)
                             pass
 
-                        case ['8', '3', device_type, init_time, search_time, join_time]:  # Reporting State machine times
+                        case ['10', '3', device_type, init_time, search_time, join_time]:  # Reporting State machine times
                             print(f"Metrics: {device_type=} {init_time=} {search_time=} {join_time=}")
                             join_metrics.append(dict(
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
@@ -235,7 +235,7 @@ def read_serial():
                             ))
                             #print(f"{data=}")
 
-                        case ['8', '4', device_type, parent_recovery_time]:  # Reporting Parent Recovery time
+                        case ['10', '4', device_type, parent_recovery_time]:  # Reporting Parent Recovery time
                             print(f"Metrics: {device_type=} {parent_recovery_time=}")
                             parent_recovery_metrics.append(dict(
                                 type='ESP8266' if device_type == '1' else 'ESP32' if device_type == '2' else 'RPI',
@@ -244,7 +244,7 @@ def read_serial():
                             #print(f"{data=}")
 
 
-                        case ['8', '5',device_type,node_ip,monitoring_time,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
+                        case ['10', '5',device_type,node_ip,monitoring_time,n_routing,bytes_routing,n_lifecycle,bytes_lifecycle,n_middleware,bytes_middleware,
                               n_app,bytes_app,n_monitoring,bytes_monitoring]:  # Reporting the messages received from each layer
 
                             message_metrics.append(dict(
@@ -267,7 +267,7 @@ def read_serial():
                             #print(f"{data=}")
 
 
-                        case ['8', '6', message_type_code, *rest]: #Message Continuous
+                        case ['10', '6', message_type_code, *rest]: #Message Continuous
                             # MONITORING_MESSAGE MESSAGE_CONTINUOUS[Message Type] [Strategy Type] [Message SubType] [N Bytes] or
                             # MONITORING_MESSAGE MESSAGE_CONTINUOUS [Message Type] [Message SubType] [N Bytes]
 
@@ -335,7 +335,7 @@ def read_serial():
                             #print(f"{data=}")
 
 
-                        case ['8', '7', *delay_data]:  # END_TO_END_DELAY message with variable node entries
+                        case ['10', '7', *delay_data]:  # END_TO_END_DELAY message with variable node entries
                             # Parse format: [node_ip] [delay] [hops] [node_ip] [delay] [hops] ...
 
                             # Process data in chunks of 3 (ip, delay, hops)
@@ -353,7 +353,7 @@ def read_serial():
 
                             print(f"Parsed end-to-end delay metrics: {end_to_end_delay_metrics}")
 
-                        case ['8', '8', *app_data]:  # Reporting Data Level Information
+                        case ['10', '8', *app_data]:  # Reporting Data Level Information
                             if len(app_data) > 0:
                                 message_type = int(app_data[0])
 

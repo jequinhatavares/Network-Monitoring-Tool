@@ -38,17 +38,17 @@ def get_dfs(directory: str, n: int):
         {'timestamp': 'float64', 'messageType': 'str', 'strategyType': 'str', 'messageSubtype': 'str',
          'n_bytes': 'int32'})
 
-    print("Min timestamp:", message_continuous_df['timestamp'].min())
-    print("Max timestamp:", message_continuous_df['timestamp'].max())
-    print("Data types:\n", message_continuous_df.dtypes)
-    print("Number of rows before filter:", len(message_continuous_df))
+    # print("Min timestamp:", message_continuous_df['timestamp'].min())
+    # print("Max timestamp:", message_continuous_df['timestamp'].max())
+    # print("Data types:\n", message_continuous_df.dtypes)
+    # print("Number of rows before filter:", len(message_continuous_df))
 
     # Filter rows within the first 607.61 seconds
     start_time = message_continuous_df['timestamp'].min()
     message_continuous_df_filter = message_continuous_df[message_continuous_df['timestamp'] - start_time <= max_continuous_sample]
 
-    print("Number of rows after filter:", len(message_continuous_df_filter))
-    print("Max elapsed time after filter:", (message_continuous_df_filter['timestamp'] - start_time).max())
+    # print("Number of rows after filter:", len(message_continuous_df_filter))
+    # print("Max elapsed time after filter:", (message_continuous_df_filter['timestamp'] - start_time).max())
 
 
     return app_init_df, app_inference_df, message_continuous_df_filter
