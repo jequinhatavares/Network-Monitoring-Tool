@@ -6,6 +6,7 @@ import json
 
 import random
 import plotly.graph_objects as go
+import re
 from networkx.algorithms.bipartite.basic import color
 
 from plotly.colors import qualitative
@@ -21,14 +22,20 @@ def get_dfs(directory: str, n: int):
     app_init_df = app_init_df.astype({'setup_time_ms': 'int32', 'missing_acks': 'int32'})
 
     runs = []
-    for file in [directory + "/" + f for f in os.listdir(
-            directory) if f.startswith('run-app-inference')]:
+    files = [directory + "/" + f for f in os.listdir(directory) if f.startswith('run-app-inference')]
+    files.sort(key=lambda s: [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)])
+
+    for file in files:
         with open(file, 'r') as f:
             runs += json.load(f)
-    app_inference_df = pd.DataFrame(runs)
-    app_inference_df = app_inference_df.astype(
-        {'strategy_type': 'str', 'inference_id': 'int32', 'inference_time_ms': 'int32', 'nack_count': 'int32'})
 
+    app_inference_df = pd.DataFrame(runs)
+    app_inference_df = app_inference_df.astype({
+        'strategy_type': 'str',
+        'inference_id': 'int32',
+        'inference_time_ms': 'int32',
+        'nack_count': 'int32'
+    })
     runs = []
 
     with open(f'{directory}/run-continuous-messages-{n}.json', 'r') as f:
