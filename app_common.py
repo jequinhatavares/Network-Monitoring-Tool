@@ -63,84 +63,88 @@ def clean_df(df: pd.DataFrame):
 
 
 def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=False):
-    # Calculate statistics
-    min_time = df['inference_time_ms'].min()
-    max_time = df['inference_time_ms'].max()
-    mean_time = df['inference_time_ms'].mean()
+    # Create a subset with the first 50 rows
+    #df_subset = df.head(50).reset_index(drop=True)
+    df_subset = df
+
+    # Calculate statistics for this subset
+    min_time = df_subset['inference_time_ms'].min()
+    max_time = df_subset['inference_time_ms'].max()
+    mean_time = df_subset['inference_time_ms'].mean()
 
     # Find which inference IDs have min and max values
-    min_id = df.loc[df['inference_time_ms'].idxmin(), 'inference_id']
-    max_id = df.loc[df['inference_time_ms'].idxmax(), 'inference_id']
+    min_id = df_subset.loc[df_subset['inference_time_ms'].idxmin(), 'inference_id']
+    max_id = df_subset.loc[df_subset['inference_time_ms'].idxmax(), 'inference_id']
 
-    # Alternative version with different styling
-    fig2 = px.scatter(df, x=df.index, y='inference_time_ms',
-                      color='inference_time_ms',  # Color by value
-                      size='inference_time_ms',  # Size by value
-                      color_continuous_scale='plasma')
+    # Create scatter plot
+    fig2 = px.scatter(
+        df_subset,
+        x = df_subset.index,
+        y = 'inference_time_ms',
+        color='inference_time_ms',
+        size='inference_time_ms',
+        color_continuous_scale='plasma'
+    )
 
     # Add statistical lines
-    fig2.add_hline(y=min_time,
-                   line_dash="dash",
-                   line_color="grey",
-                   annotation=dict(
-                       text=f"Min: {min_time:.1f} ms",
-                       font=dict(size=16, family="Helvetica", color="Black"),  # change size and font here
-                       align="left")
-                   )
-    fig2.add_hline(y=max_time,line_dash="dash",
-                   line_color="grey",
-                   annotation=dict(
-                       text=f"Max: {max_time:.1f} ms",
-                       font=dict(size=16, family="Helvetica", color="Black"),  # change size and font here
-                       align="left")
-                   )
-    fig2.add_hline(y=mean_time, line_color="grey",
-                   line_dash="dash",
-                   annotation=dict(
-                       text=f"Mean: {mean_time:.1f} ms",
-                       font=dict(size=16, family="Helvetica", color="Black"),  # change size and font here
-                       align="left")
-                   )
+    fig2.add_hline(
+        y=min_time, line_dash="dash", line_color="grey",
+        annotation=dict(
+            text=f"Min: {min_time:.1f} ms",
+            font=dict(size=16, family="Helvetica", color="Black"),
+            align="left")
+    )
+    fig2.add_hline(
+        y=max_time, line_dash="dash", line_color="grey",
+        annotation=dict(
+            text=f"Max: {max_time:.1f} ms",
+            font=dict(size=16, family="Helvetica", color="Black"),
+            align="left")
+    )
+    fig2.add_hline(
+        y=mean_time, line_dash="dash", line_color="grey",
+        annotation=dict(
+            text=f"Mean: {mean_time:.1f} ms",
+            font=dict(size=16, family="Helvetica", color="Black"),
+            align="left")
+    )
 
+    # Add vertical lines separating different runs
+    run_start_indices = df_subset.index[df_subset['inference_id'] == 1].tolist()
+
+    for idx in run_start_indices:
+        if idx != 0:  # skip first run start
+            fig2.add_vline(
+                x=idx,
+                line_dash="dot",
+                line_color="black",
+                opacity=0.4
+            )
+
+    # Layout and styling
     fig2.update_layout(
         xaxis_title='Inference ID',
         yaxis_title='Inference Duration (ms)',
-        # title={
-        #     'text': 'Inference Time Distribution',
-        #     'x': 0.5,
-        #     'xanchor': 'center',
-        #     'font': dict(family='Helvetica', size=20, color='black')
-        # },
         plot_bgcolor='white',
         coloraxis_colorbar=dict(title="Time (ms)")
     )
 
     fig2.update_traces(
-        marker=dict(
-            size=22,  # Larger balls
-            opacity=0.6,
-            line=dict(width=1, color='white'),
-        ),
-        selector=dict(mode='markers'),
-
+        marker=dict(size=20, opacity=0.6, line=dict(width=1, color='white')),
+        selector=dict(mode='markers')
     )
 
-    # Customize axes
-    fig2.update_xaxes(
-        title_font=dict(family='Helvetica', size=18, color="Black"),
-        tickfont=dict(family='Helvetica', size=16, color="Black"),
-        gridcolor='lightgray',
-        griddash='dash',
-        showgrid=True
-    )
+    # fig2.update_xaxes(
+    #     title_font=dict(family='Helvetica', size=18, color="Black"),
+    #     tickfont=dict(family='Helvetica', size=16, color="Black"),
+    #     gridcolor='lightgray', griddash='dash', showgrid=True
+    # )
 
-    fig2.update_yaxes(
-        title_font=dict(family='Helvetica', size=18, color="Black"),
-        tickfont=dict(family='Helvetica', size=16, color="Black"),
-        gridcolor='lightgray',
-        griddash='dash',
-        showgrid=True,
-    )
+    # fig2.update_yaxes(
+    #     title_font=dict(family='Helvetica', size=18, color="Black"),
+    #     tickfont=dict(family='Helvetica', size=16, color="Black"),
+    #     gridcolor='lightgray', griddash='dash', showgrid=True
+    # )
 
     if show_plot:
         fig2.show()

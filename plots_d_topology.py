@@ -203,10 +203,10 @@ if __name__ == '__main__':
     nRun=31
     app_init_df, app_inference_df, message_continuous_df = get_dfs("logs/distributed_nn_12_strategy_topology", nRun)
 
-    # with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', None,
-    #                        'display.max_colwidth', None):
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', None,'display.max_colwidth', None):
+    #
     #     print(app_init_df)
-    #     print(app_inference_df)
+         print(app_inference_df)
     #     print(message_continuous_df)
 
     if nRun==2:
@@ -214,9 +214,9 @@ if __name__ == '__main__':
 
     results = analyze_message_metrics(message_continuous_df)
 
-    plot_scatter_message_continuous2(message_continuous_df,show_plots)
+    #plot_scatter_message_continuous2(message_continuous_df,show_plots)
 
-    #plot_scatter_inference_time(app_inference_df,"images/nn_topology/inference_time_d_nn_12_topology.png", show_plots)
+    plot_scatter_inference_time(app_inference_df,"images/nn_topology/inference_time_d_nn_12_topology.png", show_plots)
 
     #create_throughput_bar_plot(message_continuous_df, results, "images/nn_topology/throughput_d_nn_12_topology.png", show_plots)
 
