@@ -213,12 +213,14 @@ if __name__ == '__main__':
     if  nRun==0:
         clean_df(message_continuous_df)
 
-    results = analyze_message_metrics(message_continuous_df)
+    #results = analyze_message_metrics(message_continuous_df)
 
     #plot_scatter_message_continuous2(message_continuous_df,show_plots)
 
-    plot_scatter_inference_time(app_inference_df, "images/nn_inject/inference_time_d_nn_12_inject.png", show_plots)
+    #plot_scatter_inference_time(app_inference_df, "images/nn_inject/inference_time_d_nn_12_inject.png", show_plots)
 
     #create_throughput_bar_plot(message_continuous_df, results, "images/nn_inject/throughput_c_nn_12_inject.png", show_plots)
 
     #create_four_category_pie(message_continuous_df, "images/nn_inject/messages_pie_c_nn_12_inject.png", show_plots)
+
+    summarize_inference_init_times("logs/centralized_nn_12_strategy_inject")

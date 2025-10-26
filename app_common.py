@@ -7,6 +7,8 @@ import json
 import random
 import plotly.graph_objects as go
 import re
+import math
+
 from networkx.algorithms.bipartite.basic import color
 
 from plotly.colors import qualitative
@@ -511,3 +513,34 @@ additional_colors = [
 
 # Combine and remove duplicates while preserving order
 extended_colors = list(dict.fromkeys(plotly_colors + additional_colors))
+
+
+def summarize_inference_init_times(directory):
+    times = []
+    for file in [directory + "/" + f for f in os.listdir(directory) if f.startswith('run-app-init')]:
+        with open(file, 'r') as f:
+            data = json.load(f)
+            for entry in data:
+                if 'setup_time_ms' in entry:
+                    times.append(entry['setup_time_ms'])
+    if not times:
+        print("No setup_time_ms values found.")
+        return
+
+    n = len(times)
+    mean_time = sum(times) / n
+    variance = sum((t - mean_time) ** 2 for t in times) / (n - 1 if n > 1 else 1)
+    std_dev = math.sqrt(variance)
+
+    # 95% confidence interval using normal approximation (z = 1.96)
+    margin = 1.96 * std_dev / math.sqrt(n)
+    ci_low = mean_time - margin
+    ci_high = mean_time + margin
+
+    print(f"======== Neural Network Initialization Stats ========")
+    print(f"Samples: {n}")
+    print(f"Mean setup time: {mean_time:.2f} ms")
+    print(f"Std deviation: {std_dev:.2f} ms")
+    print(f"Min setup time: {min(times)} ms")
+    print(f"Max setup time: {max(times)} ms")
+    print(f"95% CI: [{ci_low:.2f}, {ci_high:.2f}] ms")
