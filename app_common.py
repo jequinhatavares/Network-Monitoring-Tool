@@ -71,7 +71,8 @@ def clean_df(df: pd.DataFrame):
             df.at[idx, "n_bytes"] += header_size
 
 
-def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=False):
+def \
+        plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=False):
     # Create a subset with the first 50 rows
     #df_subset = df.head(50).reset_index(drop=True)
     df_subset = df
@@ -125,9 +126,9 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
         if idx != 0:  # skip first run start
             fig2.add_vline(
                 x=idx,
-                line_dash="dot",
-                line_color="black",
-                opacity=0.4
+                line_dash="dash",
+                line_color="grey",
+                opacity=1,
             )
 
     # Layout and styling
@@ -149,11 +150,11 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
     #     gridcolor='lightgray', griddash='dash', showgrid=True
     # )
 
-    # fig2.update_yaxes(
-    #     title_font=dict(family='Helvetica', size=18, color="Black"),
-    #     tickfont=dict(family='Helvetica', size=16, color="Black"),
-    #     gridcolor='lightgray', griddash='dash', showgrid=True
-    # )
+    fig2.update_yaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        gridcolor='lightgray', griddash='dash', showgrid=True
+    )
 
     if show_plot:
         fig2.show()

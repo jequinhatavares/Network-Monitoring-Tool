@@ -222,3 +222,5 @@ if __name__ == '__main__':
 
     #create_four_category_pie(message_continuous_df, "images/nn_topology/messages_pie_d_nn_12_topology.png", show_plots)
 
+    summarize_inference_init_times("logs/distributed_nn_12_strategy_topology")
+
