@@ -144,11 +144,11 @@ def \
         selector=dict(mode='markers')
     )
 
-    # fig2.update_xaxes(
-    #     title_font=dict(family='Helvetica', size=18, color="Black"),
-    #     tickfont=dict(family='Helvetica', size=16, color="Black"),
-    #     gridcolor='lightgray', griddash='dash', showgrid=True
-    # )
+    fig2.update_xaxes(
+        title_font=dict(family='Helvetica', size=18, color="Black"),
+        tickfont=dict(family='Helvetica', size=16, color="Black"),
+        #gridcolor='lightgray', griddash='dash', showgrid=True
+    )
 
     fig2.update_yaxes(
         title_font=dict(family='Helvetica', size=18, color="Black"),

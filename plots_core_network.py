@@ -638,7 +638,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
             y=total_time + total_std + annotation_offset,
             text=f'Total: {total_time:.2f}s<br>Std: ±{total_std:.2f}s',
             showarrow=False,
-            font=dict(family='Helvetica', size=13, weight='bold', color='black'),
+            font=dict(family='Helvetica', size=13, weight=700, color='black'),
             yshift=5,
             align='center'
         )
@@ -649,7 +649,7 @@ def stacked_bar_plot_integration_time_std(df: pd.DataFrame):
         "images/core_network/init_device_comparison.png",
         width=761,
         height=599,
-        scale=1  # multiplies the base resolution
+        scale=3  # multiplies the base resolution
     )
 
 def parent_recovery_bar_plot(df: pd.DataFrame):
@@ -719,7 +719,7 @@ def parent_recovery_bar_plot(df: pd.DataFrame):
         "images/core_network/parent_recovery_comparison.png",
         width = 761,
         height= 599,
-        scale=2  # multiplies the base resolution
+        scale=3  # multiplies the base resolution
     )
 
 
@@ -1004,7 +1004,7 @@ if __name__ == '__main__':
 
     #calculate_mean_delay(delay_df)
 
-    analyze_message_metrics(message_continuous_df_filter)
+    #analyze_message_metrics(message_continuous_df_filter)
 
     #box_plot_with_3_devices_by_state(join_times_df)
 

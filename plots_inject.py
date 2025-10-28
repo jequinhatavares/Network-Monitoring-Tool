@@ -216,7 +216,7 @@ if __name__ == '__main__':
     #results = analyze_message_metrics(message_continuous_df)
 
     #plot_scatter_message_continuous2(message_continuous_df,show_plots)
-
+    
     #plot_scatter_inference_time(app_inference_df, "images/nn_inject/inference_time_d_nn_12_inject.png", show_plots)
 
     #create_throughput_bar_plot(message_continuous_df, results, "images/nn_inject/throughput_c_nn_12_inject.png", show_plots)
