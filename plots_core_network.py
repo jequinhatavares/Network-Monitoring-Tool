@@ -85,8 +85,6 @@ def get_dfs():
     return join_times_df, parent_recovery_df, message_interval_df, message_continuous_df,message_continuous_df_filter,delay_df
 
 
-
-
 def plot_bar_states_mean_pdevice(df):
     """
         Create a separate bar plot for each device showing the mean time per state.
@@ -994,13 +992,13 @@ if __name__ == '__main__':
     # figures["RPI"].show()
     #stacked_bar_plot_integration_time(join_times_df)
 
-    stacked_bar_plot_integration_time_std(join_times_df)
+    #stacked_bar_plot_integration_time_std(join_times_df)
 
     #parent_recovery_bar_plot(parent_recovery_df)
 
     #plot_mean_messages(message_interval_df)
 
-    #plot_scatter_message_continuous(message_continuous_df)
+    plot_scatter_message_continuous(message_continuous_df)
 
     #calculate_mean_delay(delay_df)
 

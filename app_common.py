@@ -71,8 +71,7 @@ def clean_df(df: pd.DataFrame):
             df.at[idx, "n_bytes"] += header_size
 
 
-def \
-        plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=False):
+def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=False):
     # Create a subset with the first 50 rows
     #df_subset = df.head(50).reset_index(drop=True)
     df_subset = df
@@ -86,10 +85,13 @@ def \
     min_id = df_subset.loc[df_subset['inference_time_ms'].idxmin(), 'inference_id']
     max_id = df_subset.loc[df_subset['inference_time_ms'].idxmax(), 'inference_id']
 
+    # Create adjusted x values (start from 1 instead of 0)
+    x_values = df_subset.index + 1
+
     # Create scatter plot
     fig2 = px.scatter(
         df_subset,
-        x = df_subset.index,
+        x = x_values,
         y = 'inference_time_ms',
         color='inference_time_ms',
         size='inference_time_ms',
@@ -133,7 +135,7 @@ def \
 
     # Layout and styling
     fig2.update_layout(
-        xaxis_title='Inference ID',
+        xaxis_title='Inference Number',
         yaxis_title='Inference Duration (ms)',
         plot_bgcolor='white',
         coloraxis_colorbar=dict(title="Time (ms)")
@@ -148,6 +150,7 @@ def \
         title_font=dict(family='Helvetica', size=18, color="Black"),
         tickfont=dict(family='Helvetica', size=16, color="Black"),
         #gridcolor='lightgray', griddash='dash', showgrid=True
+        dtick=10  # show tick labels every 10 inferences
     )
 
     fig2.update_yaxes(
