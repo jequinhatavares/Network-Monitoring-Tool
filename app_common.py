@@ -81,9 +81,20 @@ def plot_scatter_inference_time(df: pd.DataFrame, save_path: str, show_plot=Fals
     max_time = df_subset['inference_time_ms'].max()
     mean_time = df_subset['inference_time_ms'].mean()
 
-    # Find which inference IDs have min and max values
-    min_id = df_subset.loc[df_subset['inference_time_ms'].idxmin(), 'inference_id']
-    max_id = df_subset.loc[df_subset['inference_time_ms'].idxmax(), 'inference_id']
+    # 95 percent confidence interval of the mean
+    std_time = df_subset['inference_time_ms'].std()  # sample std
+    n = len(df_subset)
+
+    if n > 1:
+        ci_95 = 1.96 * (std_time / math.sqrt(n))
+        ci_low = mean_time - ci_95
+        ci_high = mean_time + ci_95
+    else:
+        ci_low = mean_time
+        ci_high = mean_time
+
+    print(f"95 percent CI: [{ci_low:.3f} ms, {ci_high:.3f} ms]")
+    print(f"95 percent variation: ±{ci_95:.3f} ms")
 
     # Create adjusted x values (start from 1 instead of 0)
     x_values = df_subset.index + 1
