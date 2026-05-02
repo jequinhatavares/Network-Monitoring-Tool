@@ -81,10 +81,11 @@ enableModule(MONITORING_SERVER);
 ```bash
 pip install -r requirements.txt
 ```
-2. Configure the COM port
-Update the code to set the correct COM port where the root node is connected.
+2. Update the code to set the correct COM port where the root node is connected.
+
 
 **Run the Tool**
+
 After completing the setup, start the program. It will automatically begin monitoring the network and displaying the topology in real time.
 Once initialized, a command-line interface (CLI) will appear with the following options:
 
