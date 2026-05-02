@@ -4,6 +4,10 @@ The network monitoring tool operates alongside HERMES and provides a real-time v
 In addition, the program monitors key network metrics, offering insight into system performance, communication patterns, and overall network behavior. 
 This facilitates debugging, analysis, and a deeper understanding of the distributed system in operation.
 
+
+https://github.com/user-attachments/assets/d5774c7d-74c2-4717-a6ae-b0037c887b91
+
+
 ## How Does It Work?
 
 The tool operates by reading the serial output from the root node. 
