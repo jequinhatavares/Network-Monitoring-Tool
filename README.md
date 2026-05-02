@@ -7,7 +7,7 @@ This facilitates debugging, analysis, and a deeper understanding of the system o
 <img width="1152" height="648" alt="NMT" src="https://github.com/user-attachments/assets/64ae2d67-d930-4f0f-b725-3dbaaff3acf3" />
 
 
-## How Does It Work?
+## ⚙️ How Does It Work?
 
 The Network Monitoring Tool operates by reading the serial output from the root node, which acts as the primary data source for the system. 
 For this reason, the root node must be physically connected to the computer running the tool.
@@ -38,7 +38,7 @@ This category is designed to be customizable depending on the deployed applicati
 In the current implementation, these metrics are related to the distributed neural network (NN) inference application.
 
 
-## Output Examples
+## 📊 Output Examples
 
 The following images show examples of plots generated from data parsed by the Network Monitoring Tool.
 
@@ -63,27 +63,32 @@ The following images show examples of plots generated from data parsed by the Ne
 </p>
 
 
-## How to Run
-The Network Monitoring Tool requires the root node of the network to be physically connected to the computer hosting the server.
+## 🚀 How to Run
 
-First, install the required Python libraries:
-```bash
-pip install -r requirements.txt
-```
-Next, update the code to set the correct COM port where the root node is connected.
+**Prerequisites**
 
-Ensure that monitoring functionality is enabled on the microcontrollers running HERMES. 
-This step is not configured in this repository. 
-Instead, it must be enabled in the firmware running on each microcontroller that uses the HERMES library.
-In that code, activate the monitoring logs by calling:
+- The root node of the network must be physically connected to the computer hosting the server.
+- Monitoring functionality must be enabled on the microcontrollers running HERMES.  
+  This is not configured in this repository — you must enable it in the firmware of each microcontroller that uses the HERMES library by adding:
+
 ```cpp
 enableModule(MONITORING_SERVER);
 ```
 
-Once the program is running, it will automatically start monitoring the network and displaying the topology in real time.
-After initialization, a command-line interface (CLI) will appear with the available actions. Users can interact with the system as follows:
+**Setup**
 
-- Press `1` to display the metrics collected up to that moment.
+1. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+2. Configure the COM port
+Update the code to set the correct COM port where the root node is connected.
+
+**Run the Tool**
+After completing the setup, start the program. It will automatically begin monitoring the network and displaying the topology in real time.
+Once initialized, a command-line interface (CLI) will appear with the following options:
+
+- Press `1` to display the metrics collected so far.
 - Press `2` to generate a JSON file containing the collected metrics.
 - Press `8` to instruct the root node to send messages to each node in the network, enabling the measurement of Round Trip Time (RTT).
 
