@@ -29,4 +29,20 @@ pip install -r requirements.txt
 ```
 Next, update the code to set the correct COM port where the root node is connected.
 
+Ensure that monitoring is enabled on the microcontrollers running HERMES. 
+This can be done by activating the monitoring logs in the code:
+
+```cpp
+enableModule(MONITORING_SERVER);
+```
+
 Once the program is running, it will automatically start monitoring the network and displaying the topology in real time.
+After initialization, a command-line interface (CLI) will appear with the available actions. Users can interact with the system as follows:
+
+- Press `1` to display the metrics collected up to that moment.
+- Press `2` to generate a JSON file containing the collected metrics.
+- Press `8` to instruct the root node to send messages to each node in the network, enabling the measurement of Round Trip Time (RTT).
+
+<p align="center">
+  <img src="images/CLI.jpeg" width="600"/>
+</p>
